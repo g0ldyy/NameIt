@@ -1,6 +1,6 @@
 version = "1.0"
 
-import win32gui, time, json, os, threading, psutil, win32process, win32api, win32con, random
+import win32gui, time, json, os, threading, psutil, win32process, win32api, win32con, random, requests
 import dearpygui.dearpygui as dpg
 import pyMeow as pm
 
@@ -22,19 +22,6 @@ class configListener(dict):
             json.dump(nameItClass.config, open(f"{os.environ['LOCALAPPDATA']}\\temp\\nameIt", "w", encoding="utf-8"), indent=4)
 
 class Offsets:
-    dwViewMatrix = 25297232
-    dwEntityList = 24910160
-    dwLocalPlayerController = 25235272
-    dwLocalPlayerPawn = 23891768
-    dwForceJump = 23864192
-    m_iIDEntIndex = 5444
-    m_hPlayerPawn = 2028
-    m_fFlags = 968
-    m_iszPlayerName = 1600
-    m_iHealth = 812
-    m_iTeamNum = 959
-    m_vOldOrigin = 4644
-    m_pGameSceneNode = 784
     m_pBoneArray = 480
 
 class Entity:
@@ -165,6 +152,28 @@ class NameIt:
                 time.sleep(1)
 
                 continue
+
+        try:
+            offsetsName = ["dwViewMatrix", "dwEntityList", "dwLocalPlayerController", "dwLocalPlayerPawn", "dwForceJump"]
+            offsets = requests.get("https://raw.githubusercontent.com/a2x/cs2-dumper/main/generated/offsets.json").json()
+            [setattr(Offsets, k, offsets["client_dll"]["data"][k]["value"]) for k in offsetsName]
+
+            clientDllName = {
+                "m_iIDEntIndex": "C_CSPlayerPawnBase",
+                "m_hPlayerPawn": "CCSPlayerController",
+                "m_fFlags": "C_BaseEntity",
+                "m_iszPlayerName": "CBasePlayerController",
+                "m_iHealth": "C_BaseEntity",
+                "m_iTeamNum": "C_BaseEntity",
+                "m_vOldOrigin": "C_BasePlayerPawn",
+                "m_pGameSceneNode": "C_BaseEntity",
+            }
+            clientDll = requests.get("https://raw.githubusercontent.com/a2x/cs2-dumper/9a13b18e5bddb9bc59d5cd9a3693b39fd8d6849b/generated/client.dll.json").json()
+            [setattr(Offsets, k, clientDll[clientDllName[k]]["data"][k]["value"]) for k in clientDllName]
+        except:
+            input("Can't retrieve offsets. Press any key to exit!")
+
+            os._exit(0)
 
         threading.Thread(target=self.isCsOpened, daemon=True).start()
         threading.Thread(target=self.windowListener, daemon=True).start()
