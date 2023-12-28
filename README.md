@@ -2,7 +2,7 @@
 cs2 external - fully written in Python
 
 # Why
-Tired of having to deal with cheaters every game, fuck valve. I'm now cheating too.
+Tired of having to deal with cheaters every game, fuck you valve. I'm now cheating too.
 
 # Features
 - ESP (Box/Skeleton/Snapline)
