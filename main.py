@@ -281,6 +281,7 @@ class NameIt:
                 xPos = -(-(185 - pm.measure_text(watermark, 20)) // 2)+1
 
                 pm.draw_rectangle_rounded(5, 5, 180, 30, 0.2, 4, blackFade)
+                pm.draw_rectangle_rounded_lines(5, 5, 180, 30, 0.2, 4, self.espBackGroundColor, 2)
                 pm.draw_text(watermark, xPos, 11, 20, whiteWatermarkColor)
 
             if not self.config["esp"]["enabled"] and not self.config["misc"]["watermark"]:
