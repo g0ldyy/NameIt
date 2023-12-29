@@ -1,6 +1,6 @@
 version = "1.0"
 
-import win32gui, time, json, os, threading, psutil, win32process, win32api, win32con, random, requests
+import win32gui, time, json, os, threading, psutil, win32process, win32api, win32con, random, requests, win32console
 import dearpygui.dearpygui as dpg
 import pyMeow as pm
 
@@ -463,6 +463,8 @@ if __name__ == "__main__":
         os._exit(0)
 
     nameItClass = NameIt()
+
+    win32gui.ShowWindow(win32console.GetConsoleWindow() , win32con.SW_HIDE)
 
     uiWidth = 800
     uiHeight = 500
