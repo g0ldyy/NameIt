@@ -86,7 +86,8 @@ class NameIt:
             "misc": {
                 "bhop": {
                     "enabled": False
-                }
+                },
+                "watermark": True
             },
             "settings": {
                 "saveSettings": True
@@ -114,6 +115,7 @@ class NameIt:
 
         self.config = configListener(self.config)
 
+        self.overlayThreadExists = False
         self.espColor = pm.new_color_float(self.config["esp"]["color"]["r"], self.config["esp"]["color"]["g"], self.config["esp"]["color"]["b"], self.config["esp"]["color"]["a"])
         self.espBackGroundColor = pm.fade_color(self.espColor, 0.1)
 
@@ -179,7 +181,7 @@ class NameIt:
         threading.Thread(target=self.windowListener, daemon=True).start()
         threading.Thread(target=self.espBindListener, daemon=True).start()
 
-        if self.config["esp"]["enabled"]:
+        if self.config["esp"]["enabled"] or self.config["misc"]["watermark"]:
             threading.Thread(target=self.esp, daemon=True).start()
 
         if self.config["triggerBot"]["enabled"]:
@@ -210,7 +212,7 @@ class NameIt:
 
             self.config["esp"]["enabled"] = not self.config["esp"]["enabled"]
 
-            if self.config["esp"]["enabled"]:
+            if self.config["esp"]["enabled"] and not self.config["misc"]["watermark"]:
                 threading.Thread(target=self.esp, daemon=True).start()
             
             while True:
@@ -249,10 +251,14 @@ class NameIt:
             yield Entity(controllerPtr, pawnPtr, self.proc)
 
     def esp(self):
+        self.overlayThreadExists = True
+
         self.localTeam = None
 
         whiteColor = pm.get_color("white")
+        whiteWatermarkColor = pm.get_color("#f5f5ff")
         blackColor = pm.get_color("black")
+        blackFade = pm.fade_color(blackColor, 0.6)
 
         while not hasattr(self, "focusedProcess"):
             time.sleep(0.1)
@@ -260,11 +266,6 @@ class NameIt:
         pm.overlay_init("Counter-Strike 2", title="".join(random.choice("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789") for _ in range(8)), trackTarget=True)
 
         while pm.overlay_loop():
-            if not self.config["esp"]["enabled"]:
-                pm.overlay_close()
-
-                break
-
             if self.focusedProcess != "cs2.exe":
                 pm.end_drawing()
 
@@ -272,9 +273,29 @@ class NameIt:
 
                 continue
 
+            pm.begin_drawing()
+
+            if self.config["misc"]["watermark"]:
+                watermark = f"NameIt | {pm.get_fps()} fps"
+
+                xPos = -(-(185 - pm.measure_text(watermark, 20)) // 2)+1
+
+                pm.draw_rectangle_rounded(5, 5, 180, 30, 0.2, 4, blackFade)
+                pm.draw_text(watermark, xPos, 11, 20, whiteWatermarkColor)
+
+            if not self.config["esp"]["enabled"] and not self.config["misc"]["watermark"]:
+                pm.overlay_close()
+
+                self.overlayThreadExists = False
+
+                break
+            elif not self.config["esp"]["enabled"]:
+                pm.end_drawing()
+
+                continue
+
             viewMatrix = pm.r_floats(self.proc, self.mod + Offsets.dwViewMatrix, 16)
 
-            pm.begin_drawing()
             for ent in self.getEntities():
                 if ent.wts(viewMatrix):
                     if self.config["esp"]["onlyEnnemies"] and self.localTeam == ent.team:
@@ -474,7 +495,7 @@ if __name__ == "__main__":
     def toggleEsp(id, value):
         nameItClass.config["esp"]["enabled"] = value
 
-        if value:
+        if value and not nameItClass.overlayThreadExists:
             threading.Thread(target=nameItClass.esp, daemon=True).start()
     
     waitingForKeyEsp = False
@@ -565,6 +586,12 @@ if __name__ == "__main__":
         if value:
             threading.Thread(target=nameItClass.bhop, daemon=True).start()    
 
+    def toggleWatermark(id, value):
+        nameItClass.config["misc"]["watermark"] = value    
+
+        if value and not nameItClass.overlayThreadExists:
+            threading.Thread(target=nameItClass.esp, daemon=True).start()    
+
     def toggleSaveSettings(id, value):
         nameItClass.config["settings"]["saveSettings"] = value
 
@@ -630,6 +657,8 @@ if __name__ == "__main__":
                 with dpg.group(horizontal=True):
                     checkboxBhop = dpg.add_checkbox(label="BunnyHop", default_value=nameItClass.config["misc"]["bhop"]["enabled"], callback=toggleBunnyHop)
                     dpg.add_text(default_value="| Hold space!")
+
+                checkboxWatermark = dpg.add_checkbox(label="Watermark", default_value=nameItClass.config["misc"]["watermark"], callback=toggleWatermark)
             with dpg.tab(label="Settings"):
                 dpg.add_spacer(width=75)
 
