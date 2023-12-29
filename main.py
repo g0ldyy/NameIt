@@ -212,7 +212,7 @@ class NameIt:
 
             self.config["esp"]["enabled"] = not self.config["esp"]["enabled"]
 
-            if self.config["esp"]["enabled"] and not self.config["misc"]["watermark"]:
+            if self.config["esp"]["enabled"] and not self.overlayThreadExists:
                 threading.Thread(target=self.esp, daemon=True).start()
             
             while True:
