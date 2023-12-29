@@ -405,27 +405,30 @@ class NameIt:
 
                 continue
 
-            player = pm.r_int64(self.proc, self.mod + Offsets.dwLocalPlayerPawn)
-            entityId = pm.r_int(self.proc, player + Offsets.m_iIDEntIndex)
+            try:
+                player = pm.r_int64(self.proc, self.mod + Offsets.dwLocalPlayerPawn)
+                entityId = pm.r_int(self.proc, player + Offsets.m_iIDEntIndex)
 
-            if entityId > 0:
-                entList = pm.r_int64(self.proc, self.mod + Offsets.dwEntityList)
-                entEntry = pm.r_int64(self.proc, entList + 0x8 * (entityId >> 9) + 0x10)
-                entity = pm.r_int64(self.proc, entEntry + 120 * (entityId & 0x1FF))
+                if entityId > 0:
+                    entList = pm.r_int64(self.proc, self.mod + Offsets.dwEntityList)
+                    entEntry = pm.r_int64(self.proc, entList + 0x8 * (entityId >> 9) + 0x10)
+                    entity = pm.r_int64(self.proc, entEntry + 120 * (entityId & 0x1FF))
 
-                entityTeam = pm.r_int(self.proc, entity + Offsets.m_iTeamNum)
-                playerTeam = pm.r_int(self.proc, player + Offsets.m_iTeamNum)
+                    entityTeam = pm.r_int(self.proc, entity + Offsets.m_iTeamNum)
+                    playerTeam = pm.r_int(self.proc, player + Offsets.m_iTeamNum)
 
 
-                if self.config["triggerBot"]["onlyEnnemies"] and playerTeam == entityTeam:
-                    continue
+                    if self.config["triggerBot"]["onlyEnnemies"] and playerTeam == entityTeam:
+                        continue
 
-                entityHp = pm.r_int(self.proc, entity + Offsets.m_iHealth)
+                    entityHp = pm.r_int(self.proc, entity + Offsets.m_iHealth)
 
-                if entityHp > 0:
-                    win32api.mouse_event(win32con.MOUSEEVENTF_LEFTDOWN, 0, 0)
-                    time.sleep(0.02)
-                    win32api.mouse_event(win32con.MOUSEEVENTF_LEFTUP, 0, 0)
+                    if entityHp > 0:
+                        win32api.mouse_event(win32con.MOUSEEVENTF_LEFTDOWN, 0, 0)
+                        time.sleep(0.02)
+                        win32api.mouse_event(win32con.MOUSEEVENTF_LEFTUP, 0, 0)
+            except:
+                pass
 
     def bhop(self):
         while not hasattr(self, "focusedProcess"):
