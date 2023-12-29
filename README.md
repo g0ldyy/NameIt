@@ -1,5 +1,5 @@
 # NameIt
-cs2 external - fully written in Python
+cs2 external - fully written in Python - [download](https://github.com/g0ldyy/NameIt/releases)
 
 # Why
 Tired of having to deal with cheaters every game, fuck you valve. I'm now cheating too.
