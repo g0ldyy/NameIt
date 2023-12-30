@@ -350,7 +350,6 @@ class NameIt:
                             feetL = pm.world_to_screen(viewMatrix, ent.bonePos(27), 1)
 
                             pm.draw_circle_lines(ent.headPos2d["x"], ent.headPos2d["y"], center / 3, whiteColor)
-                            pm.draw_line(cou["x"], cou["y"], ent.headPos2d["x"], ent.headPos2d["y"], whiteColor, 1)
                             pm.draw_line(cou["x"], cou["y"], shoulderR["x"], shoulderR["y"], whiteColor, 1)
                             pm.draw_line(cou["x"], cou["y"], shoulderL["x"], shoulderL["y"], whiteColor, 1)
                             pm.draw_line(brasL["x"], brasL["y"], shoulderL["x"], shoulderL["y"], whiteColor, 1)
@@ -446,8 +445,9 @@ class NameIt:
                     entityHp = pm.r_int(self.proc, entity + Offsets.m_iHealth)
 
                     if entityHp > 0:
+                        time.sleep(0.01)
                         win32api.mouse_event(win32con.MOUSEEVENTF_LEFTDOWN, 0, 0)
-                        time.sleep(0.02)
+                        time.sleep(0.01)
                         win32api.mouse_event(win32con.MOUSEEVENTF_LEFTUP, 0, 0)
             except:
                 pass
