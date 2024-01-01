@@ -17,4 +17,4 @@ Tired of having to deal with cheaters every game, fuck you valve. I'm now cheati
 - Optimize code
 - Add more modules
 
-All contributions are welcome! :D
+All contributions are welcome! :)
