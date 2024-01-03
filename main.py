@@ -4,6 +4,8 @@ import win32gui, time, json, os, threading, psutil, win32process, win32api, win3
 import dearpygui.dearpygui as dpg
 import pyMeow as pm
 
+configFilePath = f"{os.environ['LOCALAPPDATA']}\\temp\\nameIt"
+
 class configListener(dict):
     def __init__(self, initialDict):
         for k, v in initialDict.items():
@@ -19,7 +21,7 @@ class configListener(dict):
         super().__setitem__(item, value)
 
         if hasattr(nameItClass, "config") and nameItClass.config["settings"]["saveSettings"]:
-            json.dump(nameItClass.config, open(f"{os.environ['LOCALAPPDATA']}\\temp\\nameIt", "w", encoding="utf-8"), indent=4)
+            json.dump(nameItClass.config, open(configFilePath, "w", encoding="utf-8"), indent=4)
 
 class Colors:
     whiteColor = pm.get_color("white")
@@ -103,9 +105,9 @@ class NameIt:
             }     
         }
 
-        if os.path.isfile(f"{os.environ['LOCALAPPDATA']}\\temp\\nameIt"):
+        if os.path.isfile(configFilePath):
             try:
-                config = json.loads(open(f"{os.environ['LOCALAPPDATA']}\\temp\\nameIt", encoding="utf-8").read())
+                config = json.loads(open(configFilePath, encoding="utf-8").read())
 
                 isConfigOk = True
                 for key in self.config:
@@ -167,7 +169,7 @@ class NameIt:
         try:
             offsetsName = ["dwViewMatrix", "dwEntityList", "dwLocalPlayerController", "dwLocalPlayerPawn", "dwForceJump"]
             offsets = requests.get("https://raw.githubusercontent.com/a2x/cs2-dumper/main/generated/offsets.json").json()
-            [setattr(Offsets, k, offsets["client_dll"]["data"][k]["value"]) for k in offsetsName]
+            [setattr(Offsets, k, v["value"]) for k, v in offsets["client_dll"]["data"].items() if k in offsetsName]
 
             clientDllName = {
                 "m_iIDEntIndex": "C_CSPlayerPawnBase",
