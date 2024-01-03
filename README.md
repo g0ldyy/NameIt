@@ -1,9 +1,6 @@
 # NameIt
 cs2 external - fully written in Python - [download](https://github.com/g0ldyy/NameIt/releases)
 
-# Why
-Tired of having to deal with cheaters every game, fuck you valve. I'm now cheating too.
-
 # Features
 - ESP (Box/Skeleton/Snapline)
 - TriggerBot
@@ -18,3 +15,6 @@ Tired of having to deal with cheaters every game, fuck you valve. I'm now cheati
 - Add more modules
 
 All contributions are welcome! :)
+
+# Why
+Tired of having to deal with cheaters every game, fuck you valve.
