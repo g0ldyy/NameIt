@@ -169,7 +169,7 @@ class NameIt:
         try:
             offsetsName = ["dwViewMatrix", "dwEntityList", "dwLocalPlayerController", "dwLocalPlayerPawn", "dwForceJump"]
             offsets = requests.get("https://raw.githubusercontent.com/a2x/cs2-dumper/main/generated/offsets.json").json()
-            [setattr(Offsets, k, v["value"]) for k, v in offsets["client_dll"]["data"].items() if k in offsetsName]
+            [setattr(Offsets, k, offsets["client_dll"]["data"][k]["value"]) for k in offsetsName]
 
             clientDllName = {
                 "m_iIDEntIndex": "C_CSPlayerPawnBase",
@@ -214,7 +214,7 @@ class NameIt:
 
             if win32api.GetAsyncKeyState(bind) == 0:
                 continue
-
+            
             cursorInfo = win32gui.GetCursorInfo()[1] # prevents when typing in chat
             if cursorInfo == 65539:
                 time.sleep(1)
@@ -264,8 +264,6 @@ class NameIt:
     def esp(self):
         self.overlayThreadExists = True
 
-        # self.localTeam = None
-
         while not hasattr(self, "focusedProcess"):
             time.sleep(0.1)
 
@@ -291,10 +289,6 @@ class NameIt:
                 pm.draw_text(watermark, xPos, 11, 20, Colors.whiteWatermarkColor)
 
             if not self.config["esp"]["enabled"] and not self.config["misc"]["watermark"]:
-                pm.overlay_close()
-
-                self.overlayThreadExists = False
-
                 break
             elif not self.config["esp"]["enabled"]:
                 pm.end_drawing()
@@ -424,6 +418,10 @@ class NameIt:
                         )
 
             pm.end_drawing()
+
+        pm.overlay_close()
+
+        self.overlayThreadExists = False
 
     def triggerBot(self):
         while not hasattr(self, "focusedProcess"):
