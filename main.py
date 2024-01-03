@@ -21,6 +21,13 @@ class configListener(dict):
         if hasattr(nameItClass, "config") and nameItClass.config["settings"]["saveSettings"]:
             json.dump(nameItClass.config, open(f"{os.environ['LOCALAPPDATA']}\\temp\\nameIt", "w", encoding="utf-8"), indent=4)
 
+class Colors:
+    whiteColor = pm.get_color("white")
+    whiteWatermarkColor = pm.get_color("#f5f5ff")
+    blackColor = pm.get_color("black")
+    blackFade = pm.fade_color(blackColor, 0.6)
+    redColor = pm.get_color("#e03636")
+
 class Offsets:
     m_pBoneArray = 480
 
@@ -71,7 +78,9 @@ class NameIt:
                 "bind": 0,
                 "box": True,
                 "boxBackground": True,
+                "boxRounding": 0.1,
                 "skeleton": False,
+                "redHead": False,
                 "snapline": False,
                 "onlyEnnemies": True,
                 "name": False,
@@ -253,12 +262,7 @@ class NameIt:
     def esp(self):
         self.overlayThreadExists = True
 
-        self.localTeam = None
-
-        whiteColor = pm.get_color("white")
-        whiteWatermarkColor = pm.get_color("#f5f5ff")
-        blackColor = pm.get_color("black")
-        blackFade = pm.fade_color(blackColor, 0.6)
+        # self.localTeam = None
 
         while not hasattr(self, "focusedProcess"):
             time.sleep(0.1)
@@ -280,9 +284,9 @@ class NameIt:
 
                 xPos = -(-(185 - pm.measure_text(watermark, 20)) // 2)+1
 
-                pm.draw_rectangle_rounded(5, 5, 180, 30, 0.2, 4, blackFade)
+                pm.draw_rectangle_rounded(5, 5, 180, 30, 0.2, 4, Colors.blackFade)
                 pm.draw_rectangle_rounded_lines(5, 5, 180, 30, 0.2, 4, self.espBackGroundColor, 2)
-                pm.draw_text(watermark, xPos, 11, 20, whiteWatermarkColor)
+                pm.draw_text(watermark, xPos, 11, 20, Colors.whiteWatermarkColor)
 
             if not self.config["esp"]["enabled"] and not self.config["misc"]["watermark"]:
                 pm.overlay_close()
@@ -317,7 +321,7 @@ class NameIt:
                             yStart,
                             width,
                             head + center / 2,
-                            0.1,
+                            self.config["esp"]["boxRounding"],
                             1,
                             self.espColor,
                             1.2,
@@ -329,9 +333,20 @@ class NameIt:
                             yStart,
                             width,
                             head + center / 2,
-                            0.1,
+                            self.config["esp"]["boxRounding"],
                             1,
                             self.espBackGroundColor,
+                        )
+
+                    if self.config["esp"]["redHead"]:
+                        pm.draw_circle_sector(
+                            ent.headPos2d["x"],
+                            ent.headPos2d["y"],
+                            center / 3,
+                            0,
+                            360,
+                            0,
+                            Colors.redColor,
                         )
 
                     if self.config["esp"]["skeleton"]:
@@ -349,18 +364,18 @@ class NameIt:
                             feetR = pm.world_to_screen(viewMatrix, ent.bonePos(24), 1)
                             feetL = pm.world_to_screen(viewMatrix, ent.bonePos(27), 1)
 
-                            pm.draw_circle_lines(ent.headPos2d["x"], ent.headPos2d["y"], center / 3, whiteColor)
-                            pm.draw_line(cou["x"], cou["y"], shoulderR["x"], shoulderR["y"], whiteColor, 1)
-                            pm.draw_line(cou["x"], cou["y"], shoulderL["x"], shoulderL["y"], whiteColor, 1)
-                            pm.draw_line(brasL["x"], brasL["y"], shoulderL["x"], shoulderL["y"], whiteColor, 1)
-                            pm.draw_line(brasR["x"], brasR["y"], shoulderR["x"], shoulderR["y"], whiteColor, 1)
-                            pm.draw_line(brasR["x"], brasR["y"], handR["x"], handR["y"], whiteColor, 1)
-                            pm.draw_line(brasL["x"], brasL["y"], handL["x"], handL["y"], whiteColor, 1)
-                            pm.draw_line(cou["x"], cou["y"], waist["x"], waist["y"], whiteColor, 1)
-                            pm.draw_line(kneesR["x"], kneesR["y"], waist["x"], waist["y"], whiteColor, 1)
-                            pm.draw_line(kneesL["x"], kneesL["y"], waist["x"], waist["y"], whiteColor, 1)
-                            pm.draw_line(kneesL["x"], kneesL["y"], feetL["x"], feetL["y"], whiteColor, 1)
-                            pm.draw_line(kneesR["x"], kneesR["y"], feetR["x"], feetR["y"], whiteColor, 1)
+                            pm.draw_circle_lines(ent.headPos2d["x"], ent.headPos2d["y"], center / 3, Colors.whiteColor)
+                            pm.draw_line(cou["x"], cou["y"], shoulderR["x"], shoulderR["y"], Colors.whiteColor, 1)
+                            pm.draw_line(cou["x"], cou["y"], shoulderL["x"], shoulderL["y"], Colors.whiteColor, 1)
+                            pm.draw_line(brasL["x"], brasL["y"], shoulderL["x"], shoulderL["y"], Colors.whiteColor, 1)
+                            pm.draw_line(brasR["x"], brasR["y"], shoulderR["x"], shoulderR["y"], Colors.whiteColor, 1)
+                            pm.draw_line(brasR["x"], brasR["y"], handR["x"], handR["y"], Colors.whiteColor, 1)
+                            pm.draw_line(brasL["x"], brasL["y"], handL["x"], handL["y"], Colors.whiteColor, 1)
+                            pm.draw_line(cou["x"], cou["y"], waist["x"], waist["y"], Colors.whiteColor, 1)
+                            pm.draw_line(kneesR["x"], kneesR["y"], waist["x"], waist["y"], Colors.whiteColor, 1)
+                            pm.draw_line(kneesL["x"], kneesL["y"], waist["x"], waist["y"], Colors.whiteColor, 1)
+                            pm.draw_line(kneesL["x"], kneesL["y"], feetL["x"], feetL["y"], Colors.whiteColor, 1)
+                            pm.draw_line(kneesR["x"], kneesR["y"], feetR["x"], feetR["y"], Colors.whiteColor, 1)
                         except:
                             pass
 
@@ -384,7 +399,7 @@ class NameIt:
                             0,
                             360,
                             0,
-                            blackColor,
+                            Colors.blackColor,
                         )
 
                         pm.draw_circle_sector(
@@ -403,7 +418,7 @@ class NameIt:
                             ent.headPos2d["x"] - pm.measure_text(ent.name, 7) // 2,
                             ent.headPos2d["y"] - center / 2,
                             7,
-                            whiteColor,
+                            Colors.whiteColor,
                         )
 
             pm.end_drawing()
@@ -531,6 +546,9 @@ if __name__ == "__main__":
     def toggleEspSkeleton(id, value):
         nameItClass.config["esp"]["skeleton"] = value
 
+    def toggleEspRedHead(id, value):
+        nameItClass.config["esp"]["redHead"] = value
+
     def toggleEspSnapline(id, value):
         nameItClass.config["esp"]["snapline"] = value
 
@@ -548,6 +566,9 @@ if __name__ == "__main__":
 
         nameItClass.espColor = pm.new_color_float(value[0], value[1], value[2], value[3])
         nameItClass.espBackGroundColor = pm.fade_color(nameItClass.espColor, 0.3)
+
+    def setEspBoxRounding(id, value):
+        nameItClass.config["esp"]["boxRounding"] = value
 
     def toggleTriggerBot(id, value):
         nameItClass.config["triggerBot"]["enabled"] = value
@@ -625,7 +646,10 @@ if __name__ == "__main__":
                     checkboxEspBox= dpg.add_checkbox(label="Box", default_value=nameItClass.config["esp"]["box"], callback=toggleEspBox)
                     checkboxEspBackground = dpg.add_checkbox(label="Background", default_value=nameItClass.config["esp"]["boxBackground"], callback=toggleEspBoxBackground)
 
-                checkboxEspSkeleton= dpg.add_checkbox(label="Skeleton", default_value=nameItClass.config["esp"]["skeleton"], callback=toggleEspSkeleton)
+                with dpg.group(horizontal=True):
+                    checkboxEspSkeleton= dpg.add_checkbox(label="Skeleton", default_value=nameItClass.config["esp"]["skeleton"], callback=toggleEspSkeleton)
+                    checkboxEspSkeleton= dpg.add_checkbox(label="Red Head", default_value=nameItClass.config["esp"]["redHead"], callback=toggleEspRedHead)
+
                 checkboxEspSnapline= dpg.add_checkbox(label="Snapline", default_value=nameItClass.config["esp"]["snapline"], callback=toggleEspSnapline)
                 checkboxEspOnlyEnnemies = dpg.add_checkbox(label="Only Ennemies", default_value=nameItClass.config["esp"]["onlyEnnemies"], callback=toggleEspOnlyEnnemies)
                 checkboxEspName = dpg.add_checkbox(label="Show Name", default_value=nameItClass.config["esp"]["name"], callback=toggleEspName)
@@ -635,7 +659,8 @@ if __name__ == "__main__":
                 dpg.add_separator()
                 dpg.add_spacer(width=75)
 
-                colorPickerEsp = dpg.add_color_picker(label="Color", default_value=(nameItClass.config["esp"]["color"]["r"]*255, nameItClass.config["esp"]["color"]["g"]*255, nameItClass.config["esp"]["color"]["b"]*255, nameItClass.config["esp"]["color"]["a"]*255), width=150, no_inputs=True, callback=setEspColor)
+                colorPickerEsp = dpg.add_color_picker(label="Global Color", default_value=(nameItClass.config["esp"]["color"]["r"]*255, nameItClass.config["esp"]["color"]["g"]*255, nameItClass.config["esp"]["color"]["b"]*255, nameItClass.config["esp"]["color"]["a"]*255), width=150, no_inputs=True, callback=setEspColor)
+                sliderEspBoxRounding = dpg.add_slider_float(label="Box Rounding", default_value=nameItClass.config["esp"]["boxRounding"], min_value=0, max_value=1, clamped=True, format="%.1f", callback=setEspBoxRounding)
             with dpg.tab(label="TriggerBot"):
                 dpg.add_spacer(width=75)
 
