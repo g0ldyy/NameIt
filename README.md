@@ -1,5 +1,5 @@
 # NameIt
-cs2 external - fully written in Python - [download](https://github.com/g0ldyy/NameIt/releases)
+cs2 external cheat - fully written in Python - [download](https://github.com/g0ldyy/NameIt/releases)
 
 # Features
 - ESP (Box/Skeleton/Snapline)
