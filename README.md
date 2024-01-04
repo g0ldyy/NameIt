@@ -16,5 +16,5 @@ cs2 external cheat - fully written in Python - [download](https://github.com/g0l
 
 All contributions are welcome! :)
 
-# Why
+# Why did I make this
 Tired of having to deal with cheaters every game, fuck you valve.
