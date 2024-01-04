@@ -24,11 +24,12 @@ class configListener(dict):
             json.dump(nameItClass.config, open(configFilePath, "w", encoding="utf-8"), indent=4)
 
 class Colors:
-    whiteColor = pm.get_color("white")
-    whiteWatermarkColor = pm.get_color("#f5f5ff")
-    blackColor = pm.get_color("black")
-    blackFade = pm.fade_color(blackColor, 0.6)
-    redColor = pm.get_color("#e03636")
+    white = pm.get_color("white")
+    whiteWatermark = pm.get_color("#f5f5ff")
+    black = pm.get_color("black")
+    blackFade = pm.fade_color(black, 0.6)
+    red = pm.get_color("#e03636")
+    green = pm.get_color("#43e06d")
 
 class Offsets:
     m_pBoneArray = 480
@@ -286,7 +287,7 @@ class NameIt:
 
                 pm.draw_rectangle_rounded(5, 5, 180, 30, 0.2, 4, Colors.blackFade)
                 pm.draw_rectangle_rounded_lines(5, 5, 180, 30, 0.2, 4, self.espBackGroundColor, 2)
-                pm.draw_text(watermark, xPos, 11, 20, Colors.whiteWatermarkColor)
+                pm.draw_text(watermark, xPos, 11, 20, Colors.whiteWatermark)
 
             if not self.config["esp"]["enabled"] and not self.config["misc"]["watermark"]:
                 break
@@ -298,6 +299,35 @@ class NameIt:
             viewMatrix = pm.r_floats(self.proc, self.mod + Offsets.dwViewMatrix, 16)
 
             for ent in self.getEntities():
+            # try: WAITING FOR PYMEOW DEVELOPER TO FIX WORLD_TO_SCREEN
+                #     headBone = ent.bonePos(6)
+
+                #     clipz = headBone["x"] * viewMatrix[12] + headBone["y"] * viewMatrix[13] + headBone["z"] * viewMatrix[14] + viewMatrix[15]
+                #     clipx = headBone["x"] * viewMatrix[0] + headBone["y"] * viewMatrix[1] + headBone["z"] * viewMatrix[2] + viewMatrix[3]
+                #     clipy = headBone["x"] * viewMatrix[4] + headBone["y"] * viewMatrix[5] + headBone["z"] * viewMatrix[6] + viewMatrix[7]
+
+                #     ndcx = clipx / clipz
+                #     ndcy = clipy / clipz
+
+                #     resultx = (pm.get_screen_width() / 2 * ndcx) + (ndcx + pm.get_screen_width() / 2)
+                #     resulty = -(pm.get_screen_height() / 2 * ndcy) + (ndcy + pm.get_screen_height() / 2)
+
+                #     if clipz < 0.2:
+                #         resulty = pm.get_screen_height()
+
+                #     width = pm.get_screen_width() / 2
+                #     height = pm.get_screen_height() - 50
+
+                #     pm.draw_line(
+                #         width,
+                #         height,
+                #         resultx,
+                #         resulty,
+                #         self.espColor,
+                #     )
+                # except:
+                #     pass
+
                 if ent.wts(viewMatrix):
                     if self.config["esp"]["onlyEnnemies"] and self.localTeam == ent.team:
                         continue
@@ -342,7 +372,7 @@ class NameIt:
                             0,
                             360,
                             0,
-                            Colors.redColor,
+                            Colors.red,
                         )
 
                     if self.config["esp"]["skeleton"]:
@@ -360,24 +390,24 @@ class NameIt:
                             feetR = pm.world_to_screen(viewMatrix, ent.bonePos(24), 1)
                             feetL = pm.world_to_screen(viewMatrix, ent.bonePos(27), 1)
 
-                            pm.draw_circle_lines(ent.headPos2d["x"], ent.headPos2d["y"], center / 3, Colors.whiteColor)
-                            pm.draw_line(cou["x"], cou["y"], shoulderR["x"], shoulderR["y"], Colors.whiteColor, 1)
-                            pm.draw_line(cou["x"], cou["y"], shoulderL["x"], shoulderL["y"], Colors.whiteColor, 1)
-                            pm.draw_line(brasL["x"], brasL["y"], shoulderL["x"], shoulderL["y"], Colors.whiteColor, 1)
-                            pm.draw_line(brasR["x"], brasR["y"], shoulderR["x"], shoulderR["y"], Colors.whiteColor, 1)
-                            pm.draw_line(brasR["x"], brasR["y"], handR["x"], handR["y"], Colors.whiteColor, 1)
-                            pm.draw_line(brasL["x"], brasL["y"], handL["x"], handL["y"], Colors.whiteColor, 1)
-                            pm.draw_line(cou["x"], cou["y"], waist["x"], waist["y"], Colors.whiteColor, 1)
-                            pm.draw_line(kneesR["x"], kneesR["y"], waist["x"], waist["y"], Colors.whiteColor, 1)
-                            pm.draw_line(kneesL["x"], kneesL["y"], waist["x"], waist["y"], Colors.whiteColor, 1)
-                            pm.draw_line(kneesL["x"], kneesL["y"], feetL["x"], feetL["y"], Colors.whiteColor, 1)
-                            pm.draw_line(kneesR["x"], kneesR["y"], feetR["x"], feetR["y"], Colors.whiteColor, 1)
+                            pm.draw_circle_lines(ent.headPos2d["x"], ent.headPos2d["y"], center / 3, Colors.white)
+                            pm.draw_line(cou["x"], cou["y"], shoulderR["x"], shoulderR["y"], Colors.white, 1)
+                            pm.draw_line(cou["x"], cou["y"], shoulderL["x"], shoulderL["y"], Colors.white, 1)
+                            pm.draw_line(brasL["x"], brasL["y"], shoulderL["x"], shoulderL["y"], Colors.white, 1)
+                            pm.draw_line(brasR["x"], brasR["y"], shoulderR["x"], shoulderR["y"], Colors.white, 1)
+                            pm.draw_line(brasR["x"], brasR["y"], handR["x"], handR["y"], Colors.white, 1)
+                            pm.draw_line(brasL["x"], brasL["y"], handL["x"], handL["y"], Colors.white, 1)
+                            pm.draw_line(cou["x"], cou["y"], waist["x"], waist["y"], Colors.white, 1)
+                            pm.draw_line(kneesR["x"], kneesR["y"], waist["x"], waist["y"], Colors.white, 1)
+                            pm.draw_line(kneesL["x"], kneesL["y"], waist["x"], waist["y"], Colors.white, 1)
+                            pm.draw_line(kneesL["x"], kneesL["y"], feetL["x"], feetL["y"], Colors.white, 1)
+                            pm.draw_line(kneesR["x"], kneesR["y"], feetR["x"], feetR["y"], Colors.white, 1)
                         except:
                             pass
 
                     if self.config["esp"]["snapline"]:
                         width = pm.get_screen_width()
-                        height = pm.get_screen_height()
+                        height = pm.get_screen_height() - 50
 
                         pm.draw_line(
                             width / 2,
@@ -388,25 +418,35 @@ class NameIt:
                         )
 
                     if self.config["esp"]["health"]:
-                        pm.draw_circle_sector(
-                            xStart,
-                            ent.pos2d["y"] - center / 2,
-                            center / 3 + 2,
-                            0,
-                            360,
-                            0,
-                            Colors.blackColor,
+                        pm.draw_rectangle_rounded(
+                            ent.headPos2d["x"] - center - 10,
+                            ent.headPos2d["y"] + (head * (100 - ent.health) / 100),
+                            3,
+                            head - (head * (100 - ent.health) / 100),
+                            self.config["esp"]["boxRounding"],
+                            1,
+                            Colors.green,
                         )
 
-                        pm.draw_circle_sector(
-                            xStart,
-                            ent.pos2d["y"] - center / 2,
-                            center / 3,
-                            0,
-                            360 / 100 * ent.health,
-                            0,
-                            self.espColor,
-                        )
+                        # pm.draw_circle_sector(
+                        #     xStart,
+                        #     ent.pos2d["y"] - center / 2,
+                        #     center / 3 + 2,
+                        #     0,
+                        #     360,
+                        #     0,
+                        #     Colors.blackColor,
+                        # )
+
+                        # pm.draw_circle_sector(
+                        #     xStart,
+                        #     ent.pos2d["y"] - center / 2,
+                        #     center / 3,
+                        #     0,
+                        #     360 / 100 * ent.health,
+                        #     0,
+                        #     self.espColor,
+                        # )
 
                     if self.config["esp"]["name"]:
                         pm.draw_text(
@@ -414,7 +454,7 @@ class NameIt:
                             ent.headPos2d["x"] - pm.measure_text(ent.name, 7) // 2,
                             ent.headPos2d["y"] - center / 2,
                             7,
-                            Colors.whiteColor,
+                            Colors.white,
                         )
 
             pm.end_drawing()
