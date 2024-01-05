@@ -291,8 +291,6 @@ class NameIt:
 
             if not self.config["esp"]["enabled"] and not self.config["misc"]["watermark"]:
                 pm.overlay_close()
-
-                break
             elif not self.config["esp"]["enabled"]:
                 pm.end_drawing()
 
