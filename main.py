@@ -272,6 +272,7 @@ class NameIt:
 
         while pm.overlay_loop():
             if self.focusedProcess != "cs2.exe":
+                pm.begin_drawing()
                 pm.end_drawing()
 
                 time.sleep(1)
@@ -290,7 +291,10 @@ class NameIt:
                 pm.draw_text(watermark, xPos, 11, 20, Colors.whiteWatermark)
 
             if not self.config["esp"]["enabled"] and not self.config["misc"]["watermark"]:
+                pm.end_drawing()
                 pm.overlay_close()
+
+                break
             elif not self.config["esp"]["enabled"]:
                 pm.end_drawing()
 
