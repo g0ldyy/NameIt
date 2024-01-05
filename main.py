@@ -299,34 +299,36 @@ class NameIt:
             viewMatrix = pm.r_floats(self.proc, self.mod + Offsets.dwViewMatrix, 16)
 
             for ent in self.getEntities():
-            # try: WAITING FOR PYMEOW DEVELOPER TO FIX WORLD_TO_SCREEN
-                #     headBone = ent.bonePos(6)
+                if self.config["esp"]["snapline"]:
+                    try: # WAITING FOR PYMEOW DEVELOPER TO FIX WORLD_TO_SCREEN
+                        headBone = ent.bonePos(6)
 
-                #     clipz = headBone["x"] * viewMatrix[12] + headBone["y"] * viewMatrix[13] + headBone["z"] * viewMatrix[14] + viewMatrix[15]
-                #     clipx = headBone["x"] * viewMatrix[0] + headBone["y"] * viewMatrix[1] + headBone["z"] * viewMatrix[2] + viewMatrix[3]
-                #     clipy = headBone["x"] * viewMatrix[4] + headBone["y"] * viewMatrix[5] + headBone["z"] * viewMatrix[6] + viewMatrix[7]
+                        clipz = headBone["x"] * viewMatrix[12] + headBone["y"] * viewMatrix[13] + headBone["z"] * viewMatrix[14] + viewMatrix[15]
+                        clipx = headBone["x"] * viewMatrix[0] + headBone["y"] * viewMatrix[1] + headBone["z"] * viewMatrix[2] + viewMatrix[3]
+                        clipy = headBone["x"] * viewMatrix[4] + headBone["y"] * viewMatrix[5] + headBone["z"] * viewMatrix[6] + viewMatrix[7]
 
-                #     ndcx = clipx / clipz
-                #     ndcy = clipy / clipz
+                        ndcx = clipx / clipz
+                        ndcy = clipy / clipz
 
-                #     resultx = (pm.get_screen_width() / 2 * ndcx) + (ndcx + pm.get_screen_width() / 2)
-                #     resulty = -(pm.get_screen_height() / 2 * ndcy) + (ndcy + pm.get_screen_height() / 2)
+                        resultx = (pm.get_screen_width() / 2 * ndcx) + (ndcx + pm.get_screen_width() / 2)
+                        resulty = -(pm.get_screen_height() / 2 * ndcy) + (ndcy + pm.get_screen_height() / 2)
 
-                #     if clipz < 0.2:
-                #         resulty = pm.get_screen_height()
+                        if clipz < 0.2:
+                            resultx = pm.get_screen_width() - resultx
+                            resulty = pm.get_screen_height()
 
-                #     width = pm.get_screen_width() / 2
-                #     height = pm.get_screen_height() - 50
+                        width = pm.get_screen_width() / 2
+                        height = pm.get_screen_height() - 50
 
-                #     pm.draw_line(
-                #         width,
-                #         height,
-                #         resultx,
-                #         resulty,
-                #         self.espColor,
-                #     )
-                # except:
-                #     pass
+                        pm.draw_line(
+                            width,
+                            height,
+                            resultx,
+                            resulty,
+                            self.espColor,
+                        )
+                    except:
+                        pass
 
                 if ent.wts(viewMatrix):
                     if self.config["esp"]["onlyEnnemies"] and self.localTeam == ent.team:
@@ -405,18 +407,6 @@ class NameIt:
                         except:
                             pass
 
-                    if self.config["esp"]["snapline"]:
-                        width = pm.get_screen_width()
-                        height = pm.get_screen_height() - 50
-
-                        pm.draw_line(
-                            width / 2,
-                            height,
-                            ent.headPos2d["x"],
-                            ent.headPos2d["y"],
-                            self.espColor,
-                        )
-
                     if self.config["esp"]["health"]:
                         pm.draw_rectangle_rounded(
                             ent.headPos2d["x"] - center - 10,
@@ -427,26 +417,6 @@ class NameIt:
                             1,
                             Colors.green,
                         )
-
-                        # pm.draw_circle_sector(
-                        #     xStart,
-                        #     ent.pos2d["y"] - center / 2,
-                        #     center / 3 + 2,
-                        #     0,
-                        #     360,
-                        #     0,
-                        #     Colors.blackColor,
-                        # )
-
-                        # pm.draw_circle_sector(
-                        #     xStart,
-                        #     ent.pos2d["y"] - center / 2,
-                        #     center / 3,
-                        #     0,
-                        #     360 / 100 * ent.health,
-                        #     0,
-                        #     self.espColor,
-                        # )
 
                     if self.config["esp"]["name"]:
                         pm.draw_text(
@@ -665,7 +635,7 @@ if __name__ == "__main__":
         else:
             win32gui.SetWindowPos(guiWindows, win32con.HWND_NOTOPMOST, 0, 0, 0, 0, win32con.SWP_NOMOVE | win32con.SWP_NOSIZE)
 
-    with dpg.window(label=f"[v{version}] NameIt", width=uiWidth, height=uiHeight, no_collapse=True, no_move=True, no_resize=True, on_close=dpg.destroy_context) as window:
+    with dpg.window(label=f"[v{version}] NameIt", width=uiWidth, height=uiHeight, no_collapse=True, no_move=True, no_resize=True, on_close=lambda: os._exit(0)) as window:
         with dpg.tab_bar():
             with dpg.tab(label="ESP"):
                 dpg.add_spacer(width=75)
