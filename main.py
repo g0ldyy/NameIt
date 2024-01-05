@@ -268,18 +268,17 @@ class NameIt:
         while not hasattr(self, "focusedProcess"):
             time.sleep(0.1)
 
-        pm.overlay_init("Counter-Strike 2", title="".join(random.choice("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789") for _ in range(8)), trackTarget=True)
+        pm.overlay_init("Counter-Strike 2", fps=240, title="".join(random.choice("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789") for _ in range(8)), trackTarget=True)
 
         while pm.overlay_loop():
+            pm.begin_drawing()
+
             if self.focusedProcess != "cs2.exe":
-                pm.begin_drawing()
                 pm.end_drawing()
 
                 time.sleep(1)
 
                 continue
-
-            pm.begin_drawing()
 
             if self.config["misc"]["watermark"]:
                 watermark = f"NameIt | {pm.get_fps()} fps"
@@ -297,6 +296,8 @@ class NameIt:
                 break
             elif not self.config["esp"]["enabled"]:
                 pm.end_drawing()
+
+                time.sleep(0.001) # prevent crashing overlay with nuitka??? yes wtf
 
                 continue
 
