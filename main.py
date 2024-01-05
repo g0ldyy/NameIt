@@ -128,6 +128,8 @@ class NameIt:
         self.config = configListener(self.config)
 
         self.overlayThreadExists = False
+        self.localTeam = None
+
         self.espColor = pm.new_color_float(self.config["esp"]["color"]["r"], self.config["esp"]["color"]["g"], self.config["esp"]["color"]["b"], self.config["esp"]["color"]["a"])
         self.espBackGroundColor = pm.fade_color(self.espColor, 0.1)
 
