@@ -290,6 +290,8 @@ class NameIt:
                 pm.draw_text(watermark, xPos, 11, 20, Colors.whiteWatermark)
 
             if not self.config["esp"]["enabled"] and not self.config["misc"]["watermark"]:
+                pm.overlay_close()
+
                 break
             elif not self.config["esp"]["enabled"]:
                 pm.end_drawing()
@@ -428,8 +430,6 @@ class NameIt:
                         )
 
             pm.end_drawing()
-
-        pm.overlay_close()
 
         self.overlayThreadExists = False
 
