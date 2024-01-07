@@ -20,7 +20,7 @@ class configListener(dict):
 
         super().__setitem__(item, value)
 
-        if hasattr(nameItClass, "config") and nameItClass.config["settings"]["saveSettings"]:
+        if hasattr(nameItClass, "config"):
             json.dump(nameItClass.config, open(configFilePath, "w", encoding="utf-8"), indent=4)
 
 class Colors:
@@ -65,12 +65,16 @@ class Entity:
         return pm.r_vec3(self.proc, boneArrayPtr + bone * 32)
     
     def wts(self, viewMatrix):
-        try:
-            self.pos2d = pm.world_to_screen(viewMatrix, self.pos, 1)
-            self.headPos2d = pm.world_to_screen(viewMatrix, self.bonePos(6), 1)
-        except:
+        a, self.pos2d = pm.world_to_screen_noexc(viewMatrix, self.pos, 1)
+
+        if not a:
             return False
+
+        b, self.headPos2d = pm.world_to_screen_noexc(viewMatrix, self.bonePos(6), 1)
         
+        if not b:
+            return False
+
         return True
 
 class NameIt:
@@ -80,14 +84,14 @@ class NameIt:
                 "enabled": False,
                 "bind": 0,
                 "box": True,
-                "boxBackground": True,
-                "boxRounding": 0.1,
-                "skeleton": False,
+                "boxBackground": False,
+                "boxRounding": 0,
+                "skeleton": True,
                 "redHead": False,
                 "snapline": False,
                 "onlyEnnemies": True,
                 "name": False,
-                "health": False,
+                "health": True,
                 "color": {"r": 1.0, "g": 0.11, "b": 0.11, "a": 0.8}
             },
             "triggerBot": {
@@ -301,22 +305,15 @@ class NameIt:
 
             for ent in self.getEntities():
                 if self.config["esp"]["snapline"]:
-                    try: # WAITING FOR PYMEOW DEVELOPER TO FIX WORLD_TO_SCREEN
-                        headBone = ent.bonePos(6)
+                    try:
+                        bounds, pos = pm.world_to_screen_noexc(viewMatrix, ent.bonePos(6), 1)
 
-                        clipz = headBone["x"] * viewMatrix[12] + headBone["y"] * viewMatrix[13] + headBone["z"] * viewMatrix[14] + viewMatrix[15]
-                        clipx = headBone["x"] * viewMatrix[0] + headBone["y"] * viewMatrix[1] + headBone["z"] * viewMatrix[2] + viewMatrix[3]
-                        clipy = headBone["x"] * viewMatrix[4] + headBone["y"] * viewMatrix[5] + headBone["z"] * viewMatrix[6] + viewMatrix[7]
+                        posx = pos["x"]
+                        posy = pos["y"]
 
-                        ndcx = clipx / clipz
-                        ndcy = clipy / clipz
-
-                        resultx = (pm.get_screen_width() / 2 * ndcx) + (ndcx + pm.get_screen_width() / 2)
-                        resulty = -(pm.get_screen_height() / 2 * ndcy) + (ndcy + pm.get_screen_height() / 2)
-
-                        if clipz < 0.2:
-                            resultx = pm.get_screen_width() - resultx
-                            resulty = pm.get_screen_height()
+                        if not bounds:
+                            posx = pm.get_screen_width() - posx
+                            posy = pm.get_screen_height()
 
                         width = pm.get_screen_width() / 2
                         height = pm.get_screen_height() - 50
@@ -324,8 +321,8 @@ class NameIt:
                         pm.draw_line(
                             width,
                             height,
-                            resultx,
-                            resulty,
+                            posx,
+                            posy,
                             self.espColor,
                         )
                     except:
@@ -393,7 +390,7 @@ class NameIt:
                             feetR = pm.world_to_screen(viewMatrix, ent.bonePos(24), 1)
                             feetL = pm.world_to_screen(viewMatrix, ent.bonePos(27), 1)
 
-                            pm.draw_circle_lines(ent.headPos2d["x"], ent.headPos2d["y"], center / 3, Colors.white)
+                            # pm.draw_circle_lines(ent.headPos2d["x"], ent.headPos2d["y"], center / 3, Colors.white) # looks bad?
                             pm.draw_line(cou["x"], cou["y"], shoulderR["x"], shoulderR["y"], Colors.white, 1)
                             pm.draw_line(cou["x"], cou["y"], shoulderL["x"], shoulderL["y"], Colors.white, 1)
                             pm.draw_line(brasL["x"], brasL["y"], shoulderL["x"], shoulderL["y"], Colors.white, 1)
