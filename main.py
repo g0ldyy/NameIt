@@ -65,17 +65,20 @@ class Entity:
         return pm.r_vec3(self.proc, boneArrayPtr + bone * 32)
     
     def wts(self, viewMatrix):
-        a, self.pos2d = pm.world_to_screen_noexc(viewMatrix, self.pos, 1)
+        try:
+            a, self.pos2d = pm.world_to_screen_noexc(viewMatrix, self.pos, 1)
 
-        if not a:
-            return False
+            if not a:
+                return False
 
-        b, self.headPos2d = pm.world_to_screen_noexc(viewMatrix, self.bonePos(6), 1)
-        
-        if not b:
-            return False
+            b, self.headPos2d = pm.world_to_screen_noexc(viewMatrix, self.bonePos(6), 1)
+            
+            if not b:
+                return False
 
-        return True
+            return True
+        except:
+            pass
 
 class NameIt:
     def __init__(self):
