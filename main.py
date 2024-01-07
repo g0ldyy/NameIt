@@ -264,6 +264,7 @@ class NameIt:
             time.sleep(0.1)
 
         pm.overlay_init("Counter-Strike 2", title="".join(random.choice("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789") for _ in range(8)), trackTarget=True)
+        pm.set_window_flag(0x00000010)
 
         while pm.overlay_loop():
             pm.begin_drawing()
