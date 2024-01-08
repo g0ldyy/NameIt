@@ -5,6 +5,7 @@ cs2 external cheat - fully written in Python - [download](https://github.com/g0l
 - ESP (Box/Skeleton/Snapline)
 - TriggerBot
 - BunnyHop
+- Stream Proof
 
 # Showcase
 <img src="https://i.imgur.com/yGyQkvo.png" width="425"/> <img src="https://i.imgur.com/QyPZCFy.png" width="425"/> 
