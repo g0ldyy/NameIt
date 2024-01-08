@@ -1,9 +1,11 @@
 version = "1.0"
+title = f"[v{version}] NameIt"
 
-import win32gui, time, json, os, threading, psutil, win32process, win32api, win32con, random, requests, win32console
+import win32gui, time, json, os, threading, psutil, win32process, win32api, win32con, random, requests, win32console, ctypes
 import dearpygui.dearpygui as dpg
 import pyMeow as pm
 
+user32 = ctypes.WinDLL("user32")
 configFilePath = f"{os.environ['LOCALAPPDATA']}\\temp\\nameIt"
 
 class configListener(dict):
@@ -109,7 +111,8 @@ class NameIt:
                 "watermark": True
             },
             "settings": {
-                "saveSettings": True
+                "saveSettings": True,
+                "streamProof": False
             }     
         }
 
@@ -134,6 +137,9 @@ class NameIt:
 
         self.config = configListener(self.config)
 
+        self.guiWindowHandle = None
+        self.overlayWindowHandle = None
+
         self.overlayThreadExists = False
         self.localTeam = None
 
@@ -147,7 +153,7 @@ class NameIt:
             if not pm.process_running(self.proc):
                 os._exit(0)
 
-            time.sleep(1)
+            time.sleep(3)
 
     def windowListener(self):
         while True:
@@ -173,6 +179,8 @@ class NameIt:
                 pass
 
         print(f"Starting NameIt!")
+
+        os.system("cls") 
 
         try:
             offsetsName = ["dwViewMatrix", "dwEntityList", "dwLocalPlayerController", "dwLocalPlayerPawn", "dwForceJump"]
@@ -211,22 +219,16 @@ class NameIt:
 
     def espBindListener(self):
         while True:
-            time.sleep(0.001)
-
-            bind = self.config["esp"]["bind"]
-
             if self.focusedProcess != "cs2.exe":
                 time.sleep(1)
 
                 continue
 
-            if win32api.GetAsyncKeyState(bind) == 0:
-                continue
-            
-            cursorInfo = win32gui.GetCursorInfo()[1] # prevents when typing in chat
-            if cursorInfo == 65539:
-                time.sleep(1)
+            time.sleep(0.001)
 
+            bind = self.config["esp"]["bind"]
+
+            if win32api.GetAsyncKeyState(bind) == 0:
                 continue
 
             self.config["esp"]["enabled"] = not self.config["esp"]["enabled"]
@@ -276,6 +278,13 @@ class NameIt:
             time.sleep(0.1)
 
         pm.overlay_init("Counter-Strike 2", title="".join(random.choice("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789") for _ in range(8)), trackTarget=True)
+        
+        self.overlayWindowHandle = pm.get_window_handle()
+        if self.config["settings"]["streamProof"]:
+            user32.SetWindowDisplayAffinity(self.overlayWindowHandle, 0x00000011)
+        else:
+            user32.SetWindowDisplayAffinity(self.overlayWindowHandle, 0x00000000)
+        
         pm.set_window_flag(0x00000010)
 
         while pm.overlay_loop():
@@ -447,12 +456,12 @@ class NameIt:
             if not self.config["triggerBot"]["enabled"]:
                 break
 
-            if win32api.GetAsyncKeyState(self.config["triggerBot"]["bind"]) == 0:
-                continue
-
             if self.focusedProcess != "cs2.exe":
                 time.sleep(1)
 
+                continue
+
+            if win32api.GetAsyncKeyState(self.config["triggerBot"]["bind"]) == 0:
                 continue
 
             try:
@@ -515,7 +524,7 @@ if __name__ == "__main__":
 
     nameItClass = NameIt()
 
-    win32gui.ShowWindow(win32console.GetConsoleWindow() , win32con.SW_HIDE)
+    win32gui.ShowWindow(win32console.GetConsoleWindow(), win32con.SW_HIDE)
 
     uiWidth = 800
     uiHeight = 500
@@ -626,20 +635,28 @@ if __name__ == "__main__":
         nameItClass.config["misc"]["watermark"] = value    
 
         if value and not nameItClass.overlayThreadExists:
-            threading.Thread(target=nameItClass.esp, daemon=True).start()    
+            threading.Thread(target=nameItClass.esp, daemon=True).start()
 
     def toggleSaveSettings(id, value):
         nameItClass.config["settings"]["saveSettings"] = value
 
-    def toggleAlwaysOnTop(id, value):
-        guiWindows = win32gui.GetForegroundWindow()
+    def toggleStreamProof(id, value):
+        nameItClass.config["settings"]["streamProof"] = value   
 
         if value:
-            win32gui.SetWindowPos(guiWindows, win32con.HWND_TOPMOST, 0, 0, 0, 0, win32con.SWP_NOMOVE | win32con.SWP_NOSIZE)
+            user32.SetWindowDisplayAffinity(nameItClass.guiWindowHandle, 0x00000011)
+            user32.SetWindowDisplayAffinity(nameItClass.overlayWindowHandle, 0x00000011)
         else:
-            win32gui.SetWindowPos(guiWindows, win32con.HWND_NOTOPMOST, 0, 0, 0, 0, win32con.SWP_NOMOVE | win32con.SWP_NOSIZE)
+            user32.SetWindowDisplayAffinity(nameItClass.guiWindowHandle, 0x00000000)
+            user32.SetWindowDisplayAffinity(nameItClass.overlayWindowHandle, 0x00000000)
 
-    with dpg.window(label=f"[v{version}] NameIt", width=uiWidth, height=uiHeight, no_collapse=True, no_move=True, no_resize=True, on_close=lambda: os._exit(0)) as window:
+    def toggleAlwaysOnTop(id, value):
+        if value:
+            win32gui.SetWindowPos(nameItClass.guiWindowHandle, win32con.HWND_TOPMOST, 0, 0, 0, 0, win32con.SWP_NOMOVE | win32con.SWP_NOSIZE)
+        else:
+            win32gui.SetWindowPos(nameItClass.guiWindowHandle, win32con.HWND_NOTOPMOST, 0, 0, 0, 0, win32con.SWP_NOMOVE | win32con.SWP_NOSIZE)
+
+    with dpg.window(label=title, width=uiWidth, height=uiHeight, no_collapse=True, no_move=True, no_resize=True, on_close=lambda: os._exit(0)) as window:
         with dpg.tab_bar():
             with dpg.tab(label="ESP"):
                 dpg.add_spacer(width=75)
@@ -706,6 +723,7 @@ if __name__ == "__main__":
 
                 dpg.add_spacer(width=75)
 
+                checkboxStreamProof = dpg.add_checkbox(label="Stream Proof", default_value=nameItClass.config["settings"]["streamProof"], callback=toggleStreamProof)
                 checkboxAlwaysOnTop = dpg.add_checkbox(label="Always On Top", callback=toggleAlwaysOnTop)
 
                 dpg.add_spacer(width=75)
@@ -739,7 +757,12 @@ if __name__ == "__main__":
 
     dpg.bind_theme(globalTheme)
 
-    dpg.create_viewport(title=f"[v{version}] NameIt", width=uiWidth, height=uiHeight, decorated=False, resizable=False)
+    dpg.create_viewport(title=title, width=uiWidth, height=uiHeight, decorated=False, resizable=False)
     dpg.show_viewport()
+    
+    nameItClass.guiWindowHandle = win32gui.FindWindow(title, None)
+    if nameItClass.config["settings"]["streamProof"]:
+        user32.SetWindowDisplayAffinity(nameItClass.guiWindowHandle, 0x00000011)
+
     dpg.setup_dearpygui()
     dpg.start_dearpygui()
