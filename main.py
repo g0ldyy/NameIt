@@ -321,11 +321,14 @@ class NameIt:
             viewMatrix = pm.r_floats(self.proc, self.mod + Offsets.dwViewMatrix, 16)
 
             for ent in self.getEntities():
-                if self.config["esp"]["onlyEnnemies"] and self.localTeam == ent.team:
-                    continue
+                try:
+                    if self.config["esp"]["onlyEnnemies"] and self.localTeam == ent.team:
+                        continue
 
-                if ent.health == 0:
-                    continue
+                    if ent.health == 0:
+                        continue
+                except:
+                    pass
 
                 if self.config["esp"]["snapline"]:
                     try:
