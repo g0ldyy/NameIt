@@ -161,13 +161,18 @@ class NameIt:
     def run(self):
         print(f"Waiting for CS2...")
 
-        while not pm.process_exists("cs2.exe"):
+        while True:
             time.sleep(1)
 
-        print(f"Starting NameIt!")
+            try:
+                self.proc = pm.open_process("cs2.exe")
+                self.mod = pm.get_module(self.proc, "client.dll")["base"]
 
-        self.proc = pm.open_process("cs2.exe")
-        self.mod = pm.get_module(self.proc, "client.dll")["base"]
+                break
+            except:
+                pass
+
+        print(f"Starting NameIt!")
 
         try:
             offsetsName = ["dwViewMatrix", "dwEntityList", "dwLocalPlayerController", "dwLocalPlayerPawn", "dwForceJump"]
