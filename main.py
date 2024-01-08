@@ -307,6 +307,12 @@ class NameIt:
             viewMatrix = pm.r_floats(self.proc, self.mod + Offsets.dwViewMatrix, 16)
 
             for ent in self.getEntities():
+                if self.config["esp"]["onlyEnnemies"] and self.localTeam == ent.team:
+                    continue
+
+                if ent.health == 0:
+                    continue
+
                 if self.config["esp"]["snapline"]:
                     try:
                         bounds, pos = pm.world_to_screen_noexc(viewMatrix, ent.bonePos(6), 1)
@@ -332,12 +338,6 @@ class NameIt:
                         pass
 
                 if ent.wts(viewMatrix):
-                    if self.config["esp"]["onlyEnnemies"] and self.localTeam == ent.team:
-                        continue
-
-                    if ent.health == 0:
-                        continue
-
                     head = ent.pos2d["y"] - ent.headPos2d["y"]
                     width = head / 2
                     center = width / 2
