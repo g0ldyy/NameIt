@@ -1,7 +1,7 @@
 version = "1.0"
 title = f"[v{version}] NameIt"
 
-import win32gui, time, json, os, threading, psutil, win32process, win32api, win32con, random, requests, win32console, ctypes
+import win32gui, time, json, os, threading, psutil, win32process, win32api, win32con, random, requests, win32console, ctypes, yappi
 import dearpygui.dearpygui as dpg
 import pyMeow as pm
 
@@ -94,7 +94,7 @@ class NameIt:
                 "skeleton": True,
                 "redHead": False,
                 "snapline": False,
-                "onlyEnnemies": True,
+                "onlyEnemies": True,
                 "name": False,
                 "health": True,
                 "color": {"r": 1.0, "g": 0.11, "b": 0.11, "a": 0.8}
@@ -102,7 +102,7 @@ class NameIt:
             "triggerBot": {
                 "enabled": False,
                 "bind": 0,
-                "onlyEnnemies": True
+                "onlyEnemies": True
             },
             "misc": {
                 "bhop": {
@@ -272,6 +272,9 @@ class NameIt:
             yield Entity(controllerPtr, pawnPtr, self.proc)
 
     def esp(self):
+        yappi.set_clock_type("cpu")
+        yappi.start()
+        
         self.overlayThreadExists = True
 
         while not hasattr(self, "focusedProcess"):
@@ -321,17 +324,14 @@ class NameIt:
             viewMatrix = pm.r_floats(self.proc, self.mod + Offsets.dwViewMatrix, 16)
 
             for ent in self.getEntities():
-                try:
-                    if self.config["esp"]["onlyEnnemies"] and self.localTeam == ent.team:
-                        continue
-
-                    if ent.health == 0:
-                        continue
-                except:
-                    pass
-
                 if self.config["esp"]["snapline"]:
                     try:
+                        if self.config["esp"]["onlyEnemies"] and self.localTeam == ent.team:
+                            continue
+
+                        if ent.health == 0:
+                            continue
+
                         bounds, pos = pm.world_to_screen_noexc(viewMatrix, ent.bonePos(6), 1)
 
                         posx = pos["x"]
@@ -355,6 +355,12 @@ class NameIt:
                         pass
 
                 if ent.wts(viewMatrix):
+                    if self.config["esp"]["onlyEnemies"] and self.localTeam == ent.team:
+                        continue
+
+                    if ent.health == 0:
+                        continue
+
                     head = ent.pos2d["y"] - ent.headPos2d["y"]
                     width = head / 2
                     center = width / 2
@@ -448,6 +454,9 @@ class NameIt:
             pm.end_drawing()
 
         self.overlayThreadExists = False
+        
+        yappi.get_func_stats().print_all()
+        yappi.get_thread_stats().print_all()
 
     def triggerBot(self):
         while not hasattr(self, "focusedProcess"):
@@ -480,7 +489,7 @@ class NameIt:
                     playerTeam = pm.r_int(self.proc, player + Offsets.m_iTeamNum)
 
 
-                    if self.config["triggerBot"]["onlyEnnemies"] and playerTeam == entityTeam:
+                    if self.config["triggerBot"]["onlyEnemies"] and playerTeam == entityTeam:
                         continue
 
                     entityHp = pm.r_int(self.proc, entity + Offsets.m_iHealth)
@@ -578,8 +587,8 @@ if __name__ == "__main__":
     def toggleEspSnapline(id, value):
         nameItClass.config["esp"]["snapline"] = value
 
-    def toggleEspOnlyEnnemies(id, value):
-        nameItClass.config["esp"]["onlyEnnemies"] = value
+    def toggleEspOnlyEnemies(id, value):
+        nameItClass.config["esp"]["onlyEnemies"] = value
 
     def toggleEspName(id, value):
         nameItClass.config["esp"]["name"] = value
@@ -625,8 +634,8 @@ if __name__ == "__main__":
 
             waitingForKeyTriggerBot = False
 
-    def toggleTriggerBotOnlyEnnemies(id, value):
-        nameItClass.config["triggerBot"]["onlyEnnemies"] = value
+    def toggleTriggerBotOnlyEnemies(id, value):
+        nameItClass.config["triggerBot"]["onlyEnemies"] = value
 
     def toggleBunnyHop(id, value):
         nameItClass.config["misc"]["bhop"]["enabled"] = value       
@@ -685,7 +694,7 @@ if __name__ == "__main__":
                     checkboxEspSkeleton= dpg.add_checkbox(label="Red Head", default_value=nameItClass.config["esp"]["redHead"], callback=toggleEspRedHead)
 
                 checkboxEspSnapline= dpg.add_checkbox(label="Snapline", default_value=nameItClass.config["esp"]["snapline"], callback=toggleEspSnapline)
-                checkboxEspOnlyEnnemies = dpg.add_checkbox(label="Only Ennemies", default_value=nameItClass.config["esp"]["onlyEnnemies"], callback=toggleEspOnlyEnnemies)
+                checkboxEspOnlyEnemies = dpg.add_checkbox(label="Only Enemies", default_value=nameItClass.config["esp"]["onlyEnemies"], callback=toggleEspOnlyEnemies)
                 checkboxEspName = dpg.add_checkbox(label="Show Name", default_value=nameItClass.config["esp"]["name"], callback=toggleEspName)
                 checkboxEspHealth = dpg.add_checkbox(label="Show Health", default_value=nameItClass.config["esp"]["health"], callback=toggleEspHealth)
 
@@ -710,7 +719,7 @@ if __name__ == "__main__":
                 dpg.add_separator()
                 dpg.add_spacer(width=75)
 
-                checkboxTriggerBotOnlyEnnemies = dpg.add_checkbox(label="Only Ennemies", default_value=nameItClass.config["triggerBot"]["onlyEnnemies"], callback=toggleTriggerBotOnlyEnnemies)
+                checkboxTriggerBotOnlyEnemies = dpg.add_checkbox(label="Only Enemies", default_value=nameItClass.config["triggerBot"]["onlyEnemies"], callback=toggleTriggerBotOnlyEnemies)
             with dpg.tab(label="Misc"):
                 dpg.add_spacer(width=75)
 
