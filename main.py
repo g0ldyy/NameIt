@@ -1,7 +1,7 @@
 version = "1.0"
 title = f"[v{version}] NameIt"
 
-import win32gui, time, json, os, threading, psutil, win32process, win32api, win32con, random, requests, win32console, ctypes, yappi
+import win32gui, time, json, os, threading, psutil, win32process, win32api, win32con, random, requests, win32console, ctypes
 import dearpygui.dearpygui as dpg
 import pyMeow as pm
 
@@ -272,9 +272,6 @@ class NameIt:
             yield Entity(controllerPtr, pawnPtr, self.proc)
 
     def esp(self):
-        yappi.set_clock_type("cpu")
-        yappi.start()
-        
         self.overlayThreadExists = True
 
         while not hasattr(self, "focusedProcess"):
@@ -454,9 +451,6 @@ class NameIt:
             pm.end_drawing()
 
         self.overlayThreadExists = False
-        
-        yappi.get_func_stats().print_all()
-        yappi.get_thread_stats().print_all()
 
     def triggerBot(self):
         while not hasattr(self, "focusedProcess"):
