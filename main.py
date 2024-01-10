@@ -85,6 +85,7 @@ class Entity:
 class NameIt:
     def __init__(self):
         self.config = {
+            "version": version,
             "esp": {
                 "enabled": False,
                 "bind": 0,
