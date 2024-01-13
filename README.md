@@ -1,5 +1,5 @@
 <h1 align="center" id="title">🐍 NameIt</h1>
-<p align="center"><img src="https://socialify.git.ci/g0ldyy/NameIt/image?description=1&descriptionEditable=first%20external%20cs2%20cheat%20fully%20written%20in%20python&font=Raleway&language=1&logo=https%3A%2F%2Fi.imgur.com%2Fex4XTRe.png&name=1&owner=1&pattern=Solid&stargazers=1&theme=Dark" alt="NameIt" width="640" height="320" /></p>
+<p align="center"><img src="https://socialify.git.ci/g0ldyy/NameIt/image?description=1&descriptionEditable=first%20external%20cs2%20cheat%20fully%20written%20in%20python&font=Raleway&language=1&logo=https%3A%2F%2Fi.imgur.com%2Fex4XTRe.png&name=1&owner=1&pattern=Solid&stargazers=1&theme=Dark"/></p>
 
 <h2 align="center">🚀 Showcase</h2>
 <p align="center"><img src="https://i.imgur.com/yGyQkvo.png" width="425"/> <img src="https://i.imgur.com/QyPZCFy.png" width="425"/></p>
