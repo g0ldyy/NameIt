@@ -109,6 +109,9 @@ class NameIt:
                 "bhop": {
                     "enabled": False
                 },
+                "noflash": {
+                    "enabled": False
+                },
                 "watermark": True
             },
             "settings": {
@@ -173,8 +176,8 @@ class NameIt:
 
             try:
                 self.proc = pm.open_process("cs2.exe")
-                self.mod = pm.get_module(self.proc, "client.dll")["base"]
-
+                self.mod = pm.get_module(self.proc, "client.dll")
+                (self.flash_address,) = pm.aob_scan_module(self.proc, self.mod["name"], "0f 83 ?? ?? ?? ?? 48 8b 1d ?? ?? ?? ?? 40 38 73")
                 break
             except:
                 pass
@@ -218,6 +221,9 @@ class NameIt:
         if self.config["misc"]["bhop"]["enabled"]:
             threading.Thread(target=self.bhop, daemon=True).start()
 
+        if self.config["misc"]["noflash"]["enabled"]:
+            threading.Thread(target=self.noflash, daemon=True).start()
+
     def espBindListener(self):
         while True:
             if self.focusedProcess != "cs2.exe":
@@ -251,8 +257,8 @@ class NameIt:
                 time.sleep(0.001)
 
     def getEntities(self):
-        entList = pm.r_int64(self.proc, self.mod + Offsets.dwEntityList)
-        local = pm.r_int64(self.proc, self.mod + Offsets.dwLocalPlayerController)
+        entList = pm.r_int64(self.proc, self.mod["base"] + Offsets.dwEntityList)
+        local = pm.r_int64(self.proc, self.mod["base"] + Offsets.dwLocalPlayerController)
         
         for i in range(1, 65):
             try:
@@ -319,7 +325,7 @@ class NameIt:
 
                 continue
 
-            viewMatrix = pm.r_floats(self.proc, self.mod + Offsets.dwViewMatrix, 16)
+            viewMatrix = pm.r_floats(self.proc, self.mod["base"] + Offsets.dwViewMatrix, 16)
 
             for ent in self.getEntities():
                 if self.config["esp"]["snapline"]:
@@ -472,11 +478,11 @@ class NameIt:
                 continue
 
             try:
-                player = pm.r_int64(self.proc, self.mod + Offsets.dwLocalPlayerPawn)
+                player = pm.r_int64(self.proc, self.mod["base"] + Offsets.dwLocalPlayerPawn)
                 entityId = pm.r_int(self.proc, player + Offsets.m_iIDEntIndex)
 
                 if entityId > 0:
-                    entList = pm.r_int64(self.proc, self.mod + Offsets.dwEntityList)
+                    entList = pm.r_int64(self.proc, self.mod["base"] + Offsets.dwEntityList)
                     entEntry = pm.r_int64(self.proc, entList + 0x8 * (entityId >> 9) + 0x10)
                     entity = pm.r_int64(self.proc, entEntry + 120 * (entityId & 0x1FF))
 
@@ -513,15 +519,21 @@ class NameIt:
             if win32api.GetAsyncKeyState(0x20) == 0:
                 continue
 
-            player = pm.r_int64(self.proc, self.mod + Offsets.dwLocalPlayerPawn)
+            player = pm.r_int64(self.proc, self.mod["base"] + Offsets.dwLocalPlayerPawn)
             flag = pm.r_int(self.proc, player + Offsets.m_fFlags)
             
             if flag & (1 << 0):
                 time.sleep(0.015625)
 
-                pm.w_int(self.proc, self.mod + Offsets.dwForceJump, 65537)
+                pm.w_int(self.proc, self.mod["base"] + Offsets.dwForceJump, 65537)
             else:
-                pm.w_int(self.proc, self.mod + Offsets.dwForceJump, 256)
+                pm.w_int(self.proc, self.mod["base"] + Offsets.dwForceJump, 256)
+    
+    def noflash(self):
+        if self.config["misc"]["noflash"]["enabled"]:
+            pm.w_bytes(self.proc, self.flash_address, b'\x0f\x82')
+        else:
+            pm.w_bytes(self.proc, self.flash_address, b'\x0f\x83')
 
 if __name__ == "__main__":
     if os.name != "nt":
@@ -637,6 +649,11 @@ if __name__ == "__main__":
 
         if value:
             threading.Thread(target=nameItClass.bhop, daemon=True).start()    
+    
+    def toggleNoFlash(id, value):
+        nameItClass.config["misc"]["noflash"]["enabled"] = value       
+
+        threading.Thread(target=nameItClass.noflash, daemon=True).start()    
 
     def toggleWatermark(id, value):
         nameItClass.config["misc"]["watermark"] = value    
@@ -722,6 +739,9 @@ if __name__ == "__main__":
                     checkboxBhop = dpg.add_checkbox(label="BunnyHop", default_value=nameItClass.config["misc"]["bhop"]["enabled"], callback=toggleBunnyHop)
                     dpg.add_text(default_value="| Hold space!")
 
+                with dpg.group(horizontal=True):
+                    checkboxNoFlash = dpg.add_checkbox(label="NoFlash", default_value=nameItClass.config["misc"]["noflash"]["enabled"], callback=toggleNoFlash)
+
                 checkboxWatermark = dpg.add_checkbox(label="Watermark", default_value=nameItClass.config["misc"]["watermark"], callback=toggleWatermark)
             with dpg.tab(label="Settings"):
                 dpg.add_spacer(width=75)
@@ -737,7 +757,7 @@ if __name__ == "__main__":
                 dpg.add_separator()
                 dpg.add_spacer(width=75)
 
-                creditsText = dpg.add_text(default_value="Credits: Goldy and PyMeow Community")
+                creditsText = dpg.add_text(default_value="Credits: Goldy, Pingu and PyMeow Community")
                 githubText = dpg.add_text(default_value="https://github.com/g0ldyy/NameIt")
 
     def dragViewport(sender, appData, userData):
