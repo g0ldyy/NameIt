@@ -1,4 +1,4 @@
-version = "1.0.1"
+version = "1.0.2"
 title = f"[v{version}] NameIt"
 
 import win32gui, time, json, os, threading, psutil, win32process, win32api, win32con, random, requests, win32console, ctypes
@@ -59,6 +59,10 @@ class Entity:
     @property
     def pos(self):
         return pm.r_vec3(self.proc, self.pawnPtr + Offsets.m_vOldOrigin)
+    
+    @property
+    def isDormant(self):
+        return pm.r_bool(self.proc, self.pawnPtr + Offsets.m_bDormant)
 
     def bonePos(self, bone):
         gameScene = pm.r_int64(self.proc, self.pawnPtr + Offsets.m_pGameSceneNode)
@@ -193,6 +197,7 @@ class NameIt:
                 "m_iTeamNum": "C_BaseEntity",
                 "m_vOldOrigin": "C_BasePlayerPawn",
                 "m_pGameSceneNode": "C_BaseEntity",
+                "m_bDormant": "CGameSceneNode",
             }
             clientDll = requests.get("https://raw.githubusercontent.com/a2x/cs2-dumper/9a13b18e5bddb9bc59d5cd9a3693b39fd8d6849b/generated/client.dll.json").json()
             [setattr(Offsets, k, clientDll[clientDllName[k]]["data"][k]["value"]) for k in clientDllName]
@@ -318,6 +323,8 @@ class NameIt:
             viewMatrix = pm.r_floats(self.proc, self.mod + Offsets.dwViewMatrix, 16)
 
             for ent in self.getEntities():
+                if ent.isDormant: continue
+                
                 if self.config["esp"]["snapline"]:
                     try:
                         if self.config["esp"]["onlyEnemies"] and self.localTeam == ent.team: continue
