@@ -69,18 +69,14 @@ class Entity:
     def wts(self, viewMatrix):
         try:
             a, self.pos2d = pm.world_to_screen_noexc(viewMatrix, self.pos, 1)
-
-            if not a:
-                return False
-
             b, self.headPos2d = pm.world_to_screen_noexc(viewMatrix, self.bonePos(6), 1)
             
-            if not b:
+            if not a or not b:
                 return False
 
             return True
         except:
-            pass
+            return False
 
 class NameIt:
     def __init__(self):
@@ -232,8 +228,7 @@ class NameIt:
 
             bind = self.config["esp"]["bind"]
 
-            if win32api.GetAsyncKeyState(bind) == 0:
-                continue
+            if win32api.GetAsyncKeyState(bind) == 0: continue
 
             self.config["esp"]["enabled"] = not self.config["esp"]["enabled"]
 
@@ -288,8 +283,6 @@ class NameIt:
             user32.SetWindowDisplayAffinity(self.overlayWindowHandle, 0x00000011)
         else:
             user32.SetWindowDisplayAffinity(self.overlayWindowHandle, 0x00000000)
-        
-        pm.set_window_flag(0x00000010)
 
         while pm.overlay_loop():
             pm.begin_drawing()
@@ -327,11 +320,8 @@ class NameIt:
             for ent in self.getEntities():
                 if self.config["esp"]["snapline"]:
                     try:
-                        if self.config["esp"]["onlyEnemies"] and self.localTeam == ent.team:
-                            continue
-
-                        if ent.health == 0:
-                            continue
+                        if self.config["esp"]["onlyEnemies"] and self.localTeam == ent.team: continue
+                        if ent.health == 0: continue
 
                         bounds, pos = pm.world_to_screen_noexc(viewMatrix, ent.bonePos(6), 1)
 
@@ -356,11 +346,8 @@ class NameIt:
                         pass
 
                 if ent.wts(viewMatrix):
-                    if self.config["esp"]["onlyEnemies"] and self.localTeam == ent.team:
-                        continue
-
-                    if ent.health == 0:
-                        continue
+                    if self.config["esp"]["onlyEnemies"] and self.localTeam == ent.team: continue
+                    if ent.health == 0: continue
 
                     head = ent.pos2d["y"] - ent.headPos2d["y"]
                     width = head / 2
@@ -463,16 +450,14 @@ class NameIt:
         while True:
             time.sleep(0.001)
 
-            if not self.config["triggerBot"]["enabled"]:
-                break
+            if not self.config["triggerBot"]["enabled"]: break
 
             if self.focusedProcess != "cs2.exe":
                 time.sleep(1)
-
+                
                 continue
 
-            if win32api.GetAsyncKeyState(self.config["triggerBot"]["bind"]) == 0:
-                continue
+            if win32api.GetAsyncKeyState(self.config["triggerBot"]["bind"]) == 0: continue
 
             try:
                 player = pm.r_int64(self.proc, self.mod + Offsets.dwLocalPlayerPawn)
@@ -487,8 +472,7 @@ class NameIt:
                     playerTeam = pm.r_int(self.proc, player + Offsets.m_iTeamNum)
 
 
-                    if self.config["triggerBot"]["onlyEnemies"] and playerTeam == entityTeam:
-                        continue
+                    if self.config["triggerBot"]["onlyEnemies"] and playerTeam == entityTeam: continue
 
                     entityHp = pm.r_int(self.proc, entity + Offsets.m_iHealth)
 
@@ -505,16 +489,14 @@ class NameIt:
             time.sleep(0.1)
         
         while True:
-            if not self.config["misc"]["bhop"]:
-                break
+            if not self.config["misc"]["bhop"]: break
 
             if self.focusedProcess != "cs2.exe":
                 time.sleep(1)
 
                 continue
 
-            if win32api.GetAsyncKeyState(0x20) == 0:
-                continue
+            if win32api.GetAsyncKeyState(0x20) == 0: continue
 
             player = pm.r_int64(self.proc, self.mod + Offsets.dwLocalPlayerPawn)
             flag = pm.r_int(self.proc, player + Offsets.m_fFlags)
