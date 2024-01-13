@@ -1,4 +1,4 @@
-version = "1.0"
+version = "1.0.1"
 title = f"[v{version}] NameIt"
 
 import win32gui, time, json, os, threading, psutil, win32process, win32api, win32con, random, requests, win32console, ctypes
@@ -106,9 +106,8 @@ class NameIt:
                 "onlyEnemies": True
             },
             "misc": {
-                "bhop": {
-                    "enabled": False
-                },
+                "bhop": False,
+                "noFlash": False,
                 "watermark": True
             },
             "settings": {
@@ -132,7 +131,8 @@ class NameIt:
                     if not config["settings"]["saveSettings"]:
                         self.config["settings"]["saveSettings"] = False
                     else:
-                        self.config = config
+                        if config["version"] == version:
+                            self.config = config
             except:
                 pass
 
@@ -215,8 +215,11 @@ class NameIt:
         if self.config["triggerBot"]["enabled"]:
             threading.Thread(target=self.triggerBot, daemon=True).start()
 
-        if self.config["misc"]["bhop"]["enabled"]:
+        if self.config["misc"]["bhop"]:
             threading.Thread(target=self.bhop, daemon=True).start()
+            
+        if self.config["misc"]["noFlash"]:
+            threading.Thread(target=self.noFlash, daemon=True).start()
 
     def espBindListener(self):
         while True:
@@ -502,7 +505,7 @@ class NameIt:
             time.sleep(0.1)
         
         while True:
-            if not self.config["misc"]["bhop"]["enabled"]:
+            if not self.config["misc"]["bhop"]:
                 break
 
             if self.focusedProcess != "cs2.exe":
@@ -522,6 +525,17 @@ class NameIt:
                 pm.w_int(self.proc, self.mod + Offsets.dwForceJump, 65537)
             else:
                 pm.w_int(self.proc, self.mod + Offsets.dwForceJump, 256)
+                
+    def noFlash(self):
+        try:
+            (flashAddress,) = pm.aob_scan_module(self.proc, pm.get_module(self.proc, "client.dll")["name"], "0f 83 ?? ?? ?? ?? 48 8b 1d ?? ?? ?? ?? 40 38 73")
+        except:
+            (flashAddress,) = pm.aob_scan_module(self.proc, pm.get_module(self.proc, "client.dll")["name"], "0f 82 ?? ?? ?? ?? 48 8b 1d ?? ?? ?? ?? 40 38 73")
+        
+        if self.config["misc"]["noFlash"]:
+            pm.w_bytes(self.proc, flashAddress, b"\x0f\x82")
+        else:
+            pm.w_bytes(self.proc, flashAddress, b"\x0f\x83")
 
 if __name__ == "__main__":
     if os.name != "nt":
@@ -633,10 +647,15 @@ if __name__ == "__main__":
         nameItClass.config["triggerBot"]["onlyEnemies"] = value
 
     def toggleBunnyHop(id, value):
-        nameItClass.config["misc"]["bhop"]["enabled"] = value       
+        nameItClass.config["misc"]["bhop"] = value       
 
         if value:
             threading.Thread(target=nameItClass.bhop, daemon=True).start()    
+            
+    def toggleNoFlash(id, value):
+        nameItClass.config["misc"]["noFlash"] = value       
+
+        threading.Thread(target=nameItClass.noFlash, daemon=True).start()    
 
     def toggleWatermark(id, value):
         nameItClass.config["misc"]["watermark"] = value    
@@ -719,9 +738,10 @@ if __name__ == "__main__":
                 dpg.add_spacer(width=75)
 
                 with dpg.group(horizontal=True):
-                    checkboxBhop = dpg.add_checkbox(label="BunnyHop", default_value=nameItClass.config["misc"]["bhop"]["enabled"], callback=toggleBunnyHop)
+                    checkboxBhop = dpg.add_checkbox(label="BunnyHop", default_value=nameItClass.config["misc"]["bhop"], callback=toggleBunnyHop)
                     dpg.add_text(default_value="| Hold space!")
-
+                    
+                checkboxNoFlash = dpg.add_checkbox(label="NoFlash", default_value=nameItClass.config["misc"]["noFlash"], callback=toggleNoFlash)
                 checkboxWatermark = dpg.add_checkbox(label="Watermark", default_value=nameItClass.config["misc"]["watermark"], callback=toggleWatermark)
             with dpg.tab(label="Settings"):
                 dpg.add_spacer(width=75)
@@ -737,7 +757,7 @@ if __name__ == "__main__":
                 dpg.add_separator()
                 dpg.add_spacer(width=75)
 
-                creditsText = dpg.add_text(default_value="Credits: Goldy and PyMeow Community")
+                creditsText = dpg.add_text(default_value="Credits: Goldy, Pingu and PyMeow Community")
                 githubText = dpg.add_text(default_value="https://github.com/g0ldyy/NameIt")
 
     def dragViewport(sender, appData, userData):
