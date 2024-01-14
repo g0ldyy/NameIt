@@ -220,9 +220,12 @@ class NameIt:
             threading.Thread(target=self.bhop, daemon=True).start()
             
         if self.config["misc"]["noFlash"]:
-            threading.Thread(target=self.noFlash, daemon=True).start()
+            self.noFlash()
 
     def espBindListener(self):
+        while not hasattr(self, "focusedProcess"):
+            time.sleep(0.1)
+        
         while True:
             if self.focusedProcess != "cs2.exe":
                 time.sleep(1)
@@ -323,13 +326,15 @@ class NameIt:
             viewMatrix = pm.r_floats(self.proc, self.mod + Offsets.dwViewMatrix, 16)
 
             for ent in self.getEntities():
-                if ent.isDormant: continue
+                try:
+                    if ent.isDormant: continue
+                    if self.config["esp"]["onlyEnemies"] and self.localTeam == ent.team: continue
+                    if ent.health == 0: continue
+                except:
+                    continue
                 
                 if self.config["esp"]["snapline"]:
                     try:
-                        if self.config["esp"]["onlyEnemies"] and self.localTeam == ent.team: continue
-                        if ent.health == 0: continue
-
                         bounds, pos = pm.world_to_screen_noexc(viewMatrix, ent.bonePos(6), 1)
 
                         posx = pos["x"]
@@ -353,9 +358,6 @@ class NameIt:
                         pass
 
                 if ent.wts(viewMatrix):
-                    if self.config["esp"]["onlyEnemies"] and self.localTeam == ent.team: continue
-                    if ent.health == 0: continue
-
                     head = ent.pos2d["y"] - ent.headPos2d["y"]
                     width = head / 2
                     center = width / 2
@@ -644,7 +646,7 @@ if __name__ == "__main__":
     def toggleNoFlash(id, value):
         nameItClass.config["misc"]["noFlash"] = value       
 
-        threading.Thread(target=nameItClass.noFlash, daemon=True).start()    
+        nameItClass.noFlash()
 
     def toggleWatermark(id, value):
         nameItClass.config["misc"]["watermark"] = value    
