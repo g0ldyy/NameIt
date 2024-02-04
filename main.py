@@ -433,7 +433,7 @@ class NameIt:
                             ent.headPos2d["y"] - center / 2 + (head * 0 / 100),
                             3,
                             head + center / 2 - (head * 0 / 100),
-                            0,
+                            self.config["esp"]["boxRounding"],
                             1,
                             self.espBackGroundColor,
                         )
@@ -443,7 +443,7 @@ class NameIt:
                             ent.headPos2d["y"] - center / 2 + (head * (100 - ent.health) / 100),
                             3,
                             head + center / 2 - (head * (100 - ent.health) / 100),
-                            0,
+                            self.config["esp"]["boxRounding"],
                             1,
                             Colors.green,
                         )
