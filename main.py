@@ -199,8 +199,6 @@ class NameIt:
                 "m_vOldOrigin": "C_BasePlayerPawn",
                 "m_pGameSceneNode": "C_BaseEntity",
                 "m_bDormant": "CGameSceneNode",
-                "m_pClippingWeapon": "C_CSPlayerPawnBase",
-                "m_szName": "CCSWeaponBaseVData",
             }
             clientDll = requests.get("https://raw.githubusercontent.com/a2x/cs2-dumper/9a13b18e5bddb9bc59d5cd9a3693b39fd8d6849b/generated/client.dll.json").json()
             [setattr(Offsets, k, clientDll[clientDllName[k]]["data"][k]["value"]) for k in clientDllName]
