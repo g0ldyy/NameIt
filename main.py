@@ -1,4 +1,4 @@
-version = "1.0.2"
+version = "1.0.3"
 title = f"[v{version}] NameIt"
 
 import win32gui, time, json, os, threading, psutil, win32process, win32api, win32con, random, requests, win32console, ctypes
@@ -103,7 +103,8 @@ class NameIt:
             "triggerBot": {
                 "enabled": False,
                 "bind": 0,
-                "onlyEnemies": True
+                "onlyEnemies": True,
+                "delay": 0,
             },
             "misc": {
                 "bhop": False,
@@ -166,7 +167,7 @@ class NameIt:
             time.sleep(0.5)
 
     def run(self):
-        print(f"Waiting for CS2...")
+        print("Waiting for CS2...")
 
         while True:
             time.sleep(1)
@@ -179,7 +180,7 @@ class NameIt:
             except:
                 pass
 
-        print(f"Starting NameIt!")
+        print("Starting NameIt!")
 
         os.system("cls") 
 
@@ -198,6 +199,8 @@ class NameIt:
                 "m_vOldOrigin": "C_BasePlayerPawn",
                 "m_pGameSceneNode": "C_BaseEntity",
                 "m_bDormant": "CGameSceneNode",
+                "m_pClippingWeapon": "C_CSPlayerPawnBase",
+                "m_szName": "CCSWeaponBaseVData",
             }
             clientDll = requests.get("https://raw.githubusercontent.com/a2x/cs2-dumper/9a13b18e5bddb9bc59d5cd9a3693b39fd8d6849b/generated/client.dll.json").json()
             [setattr(Offsets, k, clientDll[clientDllName[k]]["data"][k]["value"]) for k in clientDllName]
@@ -284,7 +287,7 @@ class NameIt:
         while not hasattr(self, "focusedProcess"):
             time.sleep(0.1)
 
-        pm.overlay_init("Counter-Strike 2", title="".join(random.choice("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789") for _ in range(8)), trackTarget=True)
+        pm.overlay_init("Counter-Strike 2", fps=144, title="".join(random.choice("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789") for _ in range(8)), trackTarget=True)
         
         self.overlayWindowHandle = pm.get_window_handle()
         if self.config["settings"]["streamProof"]:
@@ -326,11 +329,7 @@ class NameIt:
             viewMatrix = pm.r_floats(self.proc, self.mod + Offsets.dwViewMatrix, 16)
 
             for ent in self.getEntities():
-                try:
-                    if ent.isDormant: continue
-                    if self.config["esp"]["onlyEnemies"] and self.localTeam == ent.team: continue
-                    if ent.health == 0: continue
-                except:
+                if (ent.isDormant or (self.config["esp"]["onlyEnemies"] and self.localTeam == ent.team) or ent.health == 0):
                     continue
                 
                 if self.config["esp"]["snapline"]:
@@ -431,10 +430,20 @@ class NameIt:
                     if self.config["esp"]["health"]:
                         pm.draw_rectangle_rounded(
                             ent.headPos2d["x"] - center - 10,
-                            ent.headPos2d["y"] + (head * (100 - ent.health) / 100),
+                            ent.headPos2d["y"] - center / 2 + (head * 0 / 100),
                             3,
-                            head - (head * (100 - ent.health) / 100),
-                            self.config["esp"]["boxRounding"],
+                            head + center / 2 - (head * 0 / 100),
+                            0,
+                            1,
+                            self.espBackGroundColor,
+                        )
+
+                        pm.draw_rectangle_rounded(
+                            ent.headPos2d["x"] - center - 10,
+                            ent.headPos2d["y"] - center / 2 + (head * (100 - ent.health) / 100),
+                            3,
+                            head + center / 2 - (head * (100 - ent.health) / 100),
+                            0,
                             1,
                             Colors.green,
                         )
@@ -442,9 +451,9 @@ class NameIt:
                     if self.config["esp"]["name"]:
                         pm.draw_text(
                             ent.name,
-                            ent.headPos2d["x"] - pm.measure_text(ent.name, 7) // 2,
-                            ent.headPos2d["y"] - center / 2,
-                            7,
+                            ent.headPos2d["x"] - pm.measure_text(ent.name, 15) // 2,
+                            ent.headPos2d["y"] - center / 2 - 15,
+                            15,
                             Colors.white,
                         )
 
@@ -486,7 +495,7 @@ class NameIt:
                     entityHp = pm.r_int(self.proc, entity + Offsets.m_iHealth)
 
                     if entityHp > 0:
-                        time.sleep(0.01)
+                        time.sleep(self.config["triggerBot"]["delay"])
                         win32api.mouse_event(win32con.MOUSEEVENTF_LEFTDOWN, 0, 0)
                         time.sleep(0.01)
                         win32api.mouse_event(win32con.MOUSEEVENTF_LEFTUP, 0, 0)
@@ -527,6 +536,7 @@ class NameIt:
             pm.w_bytes(self.proc, flashAddress, b"\x0f\x82")
         else:
             pm.w_bytes(self.proc, flashAddress, b"\x0f\x83")
+
 
 if __name__ == "__main__":
     if os.name != "nt":
@@ -637,6 +647,9 @@ if __name__ == "__main__":
     def toggleTriggerBotOnlyEnemies(id, value):
         nameItClass.config["triggerBot"]["onlyEnemies"] = value
 
+    def sliderTriggerBotDelay(id, value):
+        nameItClass.config["triggerBot"]["delay"] = value
+
     def toggleBunnyHop(id, value):
         nameItClass.config["misc"]["bhop"] = value       
 
@@ -708,14 +721,13 @@ if __name__ == "__main__":
                 dpg.add_spacer(width=75)
 
                 colorPickerEsp = dpg.add_color_picker(label="Global Color", default_value=(nameItClass.config["esp"]["color"]["r"]*255, nameItClass.config["esp"]["color"]["g"]*255, nameItClass.config["esp"]["color"]["b"]*255, nameItClass.config["esp"]["color"]["a"]*255), width=150, no_inputs=True, callback=setEspColor)
-                sliderEspBoxRounding = dpg.add_slider_float(label="Box Rounding", default_value=nameItClass.config["esp"]["boxRounding"], min_value=0, max_value=1, clamped=True, format="%.1f", callback=setEspBoxRounding)
+                sliderEspBoxRounding = dpg.add_slider_float(label="Box Rounding", default_value=nameItClass.config["esp"]["boxRounding"], min_value=0, max_value=1, clamped=True, format="%.1f", callback=setEspBoxRounding, width=250)
             with dpg.tab(label="TriggerBot"):
                 dpg.add_spacer(width=75)
 
                 with dpg.group(horizontal=True):
                     checkboxToggleTriggerBot = dpg.add_checkbox(label="Toggle", default_value=nameItClass.config["triggerBot"]["enabled"], callback=toggleTriggerBot)
                     buttonBindTriggerBot = dpg.add_button(label="Click to Bind", callback=statusBindTriggerBot)
-
                     bind = nameItClass.config["triggerBot"]["bind"]
                     if bind != 0:
                         dpg.set_item_label(buttonBindTriggerBot, f"Bind: {chr(bind)}")   
@@ -725,6 +737,12 @@ if __name__ == "__main__":
                 dpg.add_spacer(width=75)
 
                 checkboxTriggerBotOnlyEnemies = dpg.add_checkbox(label="Only Enemies", default_value=nameItClass.config["triggerBot"]["onlyEnemies"], callback=toggleTriggerBotOnlyEnemies)
+                
+                dpg.add_spacer(width=75)
+                dpg.add_separator()
+                dpg.add_spacer(width=75)
+
+                sliderDelayTriggerBot = dpg.add_slider_float(label="Shot Delay", default_value=nameItClass.config["triggerBot"]["delay"], max_value=1, callback=sliderTriggerBotDelay, width=250, clamped=True, format="%.1f")
             with dpg.tab(label="Misc"):
                 dpg.add_spacer(width=75)
 
