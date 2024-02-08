@@ -200,7 +200,7 @@ class NameIt:
                 "m_pGameSceneNode": "C_BaseEntity",
                 "m_bDormant": "CGameSceneNode",
             }
-            clientDll = requests.get("https://raw.githubusercontent.com/a2x/cs2-dumper/9a13b18e5bddb9bc59d5cd9a3693b39fd8d6849b/generated/client.dll.json").json()
+            clientDll = requests.get("https://raw.githubusercontent.com/a2x/cs2-dumper/main/generated/client.dll.json").json()
             [setattr(Offsets, k, clientDll[clientDllName[k]]["data"][k]["value"]) for k in clientDllName]
         except:
             input("Can't retrieve offsets. Press any key to exit!")
