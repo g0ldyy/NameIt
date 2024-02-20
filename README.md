@@ -21,10 +21,10 @@
 
 <h3>Source Code</h3>
 
-*   Download source code of [PyMeow](https://github.com/qb-0/pyMeow).
-*   Follow the build instructions and build PyMeow.
-*   Download source code of [NameIt](https://github.com/g0ldyy/NameIt).
-*   Move your PyMeow compiled file `PyMeow.pyd` and drag it to the same folder as the NameIt source.
+*   Download source code of [PyMeow](https://github.com/qb-0/pyMeow). (optional: pymeow.pyd is now already provided)
+*   Follow the build instructions and build PyMeow. (optional: pymeow.pyd is now already provided)
+*   Download source code of [NameIt](https://github.com/g0ldyy/NameIt). (optional: pymeow.pyd is now already provided)
+*   Move your PyMeow compiled file `PyMeow.pyd` and drag it to the same folder as the NameIt source. (optional: pymeow.pyd is now already provided)
 *   Run `main.py`.
 
 <h2 align="center">🛡️ License</h2>
