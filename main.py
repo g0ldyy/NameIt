@@ -521,8 +521,8 @@ class NameIt:
             flag = pm.r_int(self.proc, player + Offsets.m_fFlags)
             
             if flag & (1 << 0):
-                time.sleep(0.015625)
-
+                time.sleep(0.0017)
+                
                 pm.w_int(self.proc, self.mod + Offsets.dwForceJump, 65537)
             else:
                 pm.w_int(self.proc, self.mod + Offsets.dwForceJump, 256)
