@@ -185,9 +185,9 @@ class NameIt:
         os.system("cls") 
 
         try:
-            offsetsName = ["dwViewMatrix", "dwEntityList", "dwLocalPlayerController", "dwLocalPlayerPawn", "dwForceJump"]
-            offsets = requests.get("https://raw.githubusercontent.com/a2x/cs2-dumper/main/generated/offsets.json").json()
-            [setattr(Offsets, k, offsets["client_dll"]["data"][k]["value"]) for k in offsetsName]
+            offsetsName = ["dwViewMatrix", "dwEntityList", "dwLocalPlayerController", "dwLocalPlayerPawn"] # dwForceJump
+            offsets = requests.get("https://raw.githubusercontent.com/a2x/cs2-dumper/main/output/offsets.json").json()
+            [setattr(Offsets, k, offsets["client.dll"][k]) for k in offsetsName]
 
             clientDllName = {
                 "m_iIDEntIndex": "C_CSPlayerPawnBase",
@@ -200,9 +200,10 @@ class NameIt:
                 "m_pGameSceneNode": "C_BaseEntity",
                 "m_bDormant": "CGameSceneNode",
             }
-            clientDll = requests.get("https://raw.githubusercontent.com/a2x/cs2-dumper/main/generated/client.dll.json").json()
-            [setattr(Offsets, k, clientDll[clientDllName[k]]["data"][k]["value"]) for k in clientDllName]
-        except:
+            clientDll = requests.get("https://raw.githubusercontent.com/a2x/cs2-dumper/main/output/client.dll.json").json()
+            [setattr(Offsets, k, clientDll["client.dll"]["classes"][clientDllName[k]]["fields"][k]) for k in clientDllName]
+        except Exception as e:
+            print(e)
             input("Can't retrieve offsets. Press any key to exit!")
 
             os._exit(0)
@@ -504,28 +505,30 @@ class NameIt:
                 pass
 
     def bhop(self):
-        while not hasattr(self, "focusedProcess"):
-            time.sleep(0.1)
+        return
         
-        while True:
-            if not self.config["misc"]["bhop"]: break
+        # while not hasattr(self, "focusedProcess"):
+        #     time.sleep(0.1)
+        
+        # while True:
+        #     if not self.config["misc"]["bhop"]: break
 
-            if self.focusedProcess != "cs2.exe":
-                time.sleep(1)
+        #     if self.focusedProcess != "cs2.exe":
+        #         time.sleep(1)
 
-                continue
+        #         continue
 
-            if win32api.GetAsyncKeyState(0x20) == 0: continue
+        #     if win32api.GetAsyncKeyState(0x20) == 0: continue
 
-            player = pm.r_int64(self.proc, self.mod + Offsets.dwLocalPlayerPawn)
-            flag = pm.r_int(self.proc, player + Offsets.m_fFlags)
+        #     player = pm.r_int64(self.proc, self.mod + Offsets.dwLocalPlayerPawn)
+        #     flag = pm.r_int(self.proc, player + Offsets.m_fFlags)
             
-            if flag & (1 << 0):
-                time.sleep(0.0017)
+        #     if flag & (1 << 0):
+        #         time.sleep(0.0017)
                 
-                pm.w_int(self.proc, self.mod + Offsets.dwForceJump, 65537)
-            else:
-                pm.w_int(self.proc, self.mod + Offsets.dwForceJump, 256)
+        #         pm.w_int(self.proc, self.mod + Offsets.dwForceJump, 65537)
+        #     else:
+        #         pm.w_int(self.proc, self.mod + Offsets.dwForceJump, 256)
                 
     def noFlash(self):
         try:
