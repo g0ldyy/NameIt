@@ -531,15 +531,17 @@ class NameIt:
         #         pm.w_int(self.proc, self.mod + Offsets.dwForceJump, 256)
                 
     def noFlash(self):
-        try:
-            (flashAddress,) = pm.aob_scan_module(self.proc, pm.get_module(self.proc, "client.dll")["name"], "0f 83 ?? ?? ?? ?? 48 8b 1d ?? ?? ?? ?? 40 38 73")
-        except:
-            (flashAddress,) = pm.aob_scan_module(self.proc, pm.get_module(self.proc, "client.dll")["name"], "0f 82 ?? ?? ?? ?? 48 8b 1d ?? ?? ?? ?? 40 38 73")
+        return
         
-        if self.config["misc"]["noFlash"]:
-            pm.w_bytes(self.proc, flashAddress, b"\x0f\x82")
-        else:
-            pm.w_bytes(self.proc, flashAddress, b"\x0f\x83")
+        # try:
+        #     (flashAddress,) = pm.aob_scan_module(self.proc, pm.get_module(self.proc, "client.dll")["name"], "0f 83 ?? ?? ?? ?? 48 8b 1d ?? ?? ?? ?? 40 38 73")
+        # except:
+        #     (flashAddress,) = pm.aob_scan_module(self.proc, pm.get_module(self.proc, "client.dll")["name"], "0f 82 ?? ?? ?? ?? 48 8b 1d ?? ?? ?? ?? 40 38 73")
+        
+        # if self.config["misc"]["noFlash"]:
+        #     pm.w_bytes(self.proc, flashAddress, b"\x0f\x82")
+        # else:
+        #     pm.w_bytes(self.proc, flashAddress, b"\x0f\x83")
 
 
 if __name__ == "__main__":
