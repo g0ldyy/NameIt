@@ -34,7 +34,7 @@ class Colors:
     green = pm.get_color("#43e06d")
 
 class Offsets:
-    m_pBoneArray = 480
+    m_pBoneArray = 496
 
 class Entity:
     def __init__(self, ptr, pawnPtr, proc):
