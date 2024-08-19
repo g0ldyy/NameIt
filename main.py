@@ -200,7 +200,7 @@ class NameIt:
                 "m_pGameSceneNode": "C_BaseEntity",
                 "m_bDormant": "CGameSceneNode",
             }
-            clientDll = requests.get("https://raw.githubusercontent.com/a2x/cs2-dumper/main/output/client.dll.json").json()
+            clientDll = requests.get("https://raw.githubusercontent.com/a2x/cs2-dumper/main/output/client_dll.json").json()
             [setattr(Offsets, k, clientDll["client.dll"]["classes"][clientDllName[k]]["fields"][k]) for k in clientDllName]
         except Exception as e:
             print(e)
